@@ -41,4 +41,10 @@ class User extends Authenticatable
     {
         return $this->role === 'user';
     }
+
+    // Recipes authored by this user
+    public function recipes()
+    {
+        return $this->hasMany(Recipe::class);
+    }
 }

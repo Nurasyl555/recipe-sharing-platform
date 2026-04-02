@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\Recipe;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ProfileController;
 
@@ -30,5 +31,14 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
 
     // Сюда другие участники добавят: users, recipes management
 });
+
+// Recipe routes
+Route::resource('recipes', \App\Http\Controllers\RecipeController::class);
+
+// My rescipes
+Route::get('/my-recipes', function () {
+    $recipes = auth()->user()->recipes()->latest()->paginate(10);
+    return view('recipes.my-recipes', compact('recipes'));
+})->name('recipes.my-recipes');
 
 require __DIR__.'/auth.php';
