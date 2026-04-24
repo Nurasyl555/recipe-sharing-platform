@@ -4,6 +4,8 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Support\Str;   // BUGFIX: was missing, caused Str::slug() to fail
+
 class Recipe extends Model
 {
     use HasFactory;
@@ -15,6 +17,7 @@ class Recipe extends Model
         'user_id', 'category_id', 'cuisine_id',
     ];
 
+    // Auto-generate slug on create
     protected static function booted(): void
     {
         static::creating(function (Recipe $recipe) {
@@ -22,7 +25,9 @@ class Recipe extends Model
         });
     }
 
-    // Relationsjip
+    // -------------------------
+    // Relationships
+    // -------------------------
 
     public function user()
     {
@@ -39,32 +44,55 @@ class Recipe extends Model
         return $this->belongsTo(Cuisine::class);
     }
 
-    // Many-to-many
+    /**
+     * Ingredients via pivot.
+     * BUGFIX: pivot table name was 'ingredient_recipe' — corrected to 'recipe_ingredient'
+     * to match the actual migration file.
+     */
     public function ingredients()
     {
-        return $this->belongsToMany(Ingredient::class, 'ingredient_recipe')
+        return $this->belongsToMany(Ingredient::class, 'recipe_ingredient')
             ->withPivot('amount', 'unit')
             ->withTimestamps();
     }
 
-//    public function ratings()
-//    {
-//        return $this->hasMany(Rating::class);
-//    }
-//
-//    public function favoritedBy()
-//    {
-//        return $this->belongsToMany(User::class, 'favorites');
-//    }
+    /**
+     * Ratings for this recipe (Person 3 will implement RatingController).
+     * Uncommented so RecipeController->show() can eager-load ratings.
+     */
+    public function ratings()
+    {
+        return $this->hasMany(Rating::class);
+    }
 
-    public function isPublished() : bool
+    /**
+     * Users who saved this recipe as favourite (Person 3).
+     */
+    public function favoritedBy()
+    {
+        return $this->belongsToMany(User::class, 'favorites');
+    }
+
+    // -------------------------
+    // Helpers
+    // -------------------------
+
+    public function isPublished(): bool
     {
         return $this->status === 'published';
     }
 
-    public function isOwnedBy(User $user) : bool
+    public function isOwnedBy(User $user): bool
     {
         return $this->user_id === $user->id;
+    }
+
+    /**
+     * Average rating score (used by Person 3's trending logic).
+     */
+    public function getAverageRatingAttribute(): float
+    {
+        return round($this->ratings()->avg('score') ?? 0, 1);
     }
 
     public function getImageUrlAttribute(): string
@@ -73,5 +101,4 @@ class Recipe extends Model
             ? asset('storage/' . $this->image)
             : asset('images/default-recipe.jpg');
     }
-
 }
