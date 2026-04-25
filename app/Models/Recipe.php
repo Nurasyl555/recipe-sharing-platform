@@ -46,12 +46,11 @@ class Recipe extends Model
             ->withPivot('amount', 'unit')
             ->withTimestamps();
     }
+    public function ratings()
+    {
+        return $this->hasMany(Rating::class);
+    }
 
-//    public function ratings()
-//    {
-//        return $this->hasMany(Rating::class);
-//    }
-//
 //    public function favoritedBy()
 //    {
 //        return $this->belongsToMany(User::class, 'favorites');
