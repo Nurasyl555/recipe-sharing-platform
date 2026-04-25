@@ -10,7 +10,7 @@ class RatingResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'score' => $this->score,
+            'rating' => $this->rating,
             'comment' => $this->comment,
             'user' => new UserResource($this->whenLoaded('user')),
             'recipe_id' => $this->recipe_id,
