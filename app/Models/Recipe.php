@@ -50,7 +50,8 @@ class Recipe extends Model
     // Many-to-many
     public function ingredients()
     {
-        return $this->belongsToMany(Ingredient::class, 'ingredient_recipe')
+        // ИСПРАВЛЕНИЕ: здесь должно быть 'recipe_ingredient', как в твоей миграции
+        return $this->belongsToMany(Ingredient::class, 'recipe_ingredient')
             ->withPivot('amount', 'unit')
             ->withTimestamps();
     }
