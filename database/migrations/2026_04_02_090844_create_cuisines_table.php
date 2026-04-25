@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('cuisines', function (Blueprint $table) {
             $table->id();
             $table->string('name')->unique();
+            $table->string('slug')->unique();
             $table->string('country')->nullable();
             $table->timestamps();
         });

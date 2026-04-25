@@ -8,7 +8,7 @@ class Cuisine extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['name', 'country'];
+    protected $fillable = ['name', 'slug', 'country'];
 
     public function recipes()
     {
