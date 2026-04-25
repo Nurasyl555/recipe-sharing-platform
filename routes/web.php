@@ -1,30 +1,58 @@
 <?php
 
-use App\Models\Recipe;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\RecipeController;
+use App\Http\Controllers\RatingController;
+use App\Http\Controllers\FavoriteController;
 
-// Главная страница
+// ==========================================
+// 1. Открытые роуты (доступны всем гостям)
+// ==========================================
 Route::get('/', function () {
     return view('welcome');
 });
 
+// Просмотр всех рецептов и одного конкретного
+Route::resource('recipes', RecipeController::class)->only(['index', 'show']);
 
-// Роуты для авторизованных пользователей
+
+// ==========================================
+// 2. Защищенные роуты (только для авторизованных)
+// ==========================================
 Route::middleware('auth')->group(function () {
 
+    // Основной дашборд
     Route::get('/dashboard', function () {
         return view('dashboard');
     })->name('dashboard');
 
+    // Управление профилем (Breeze)
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
+    // Управление рецептами (создание, редактирование, удаление)
+    Route::resource('recipes', RecipeController::class)->except(['index', 'show']);
+
+    // Страница "Мои рецепты"
+    Route::get('/my-recipes', function () {
+        $recipes = auth()->user()->recipes()->latest()->paginate(10);
+        return view('recipes.my-recipes', compact('recipes'));
+    })->name('recipes.my-recipes');
+
+    // Рейтинги и Избранное (Код от Person 3)
+    Route::post('/ratings', [RatingController::class, 'store']);
+    Route::delete('/ratings/{recipeId}', [RatingController::class, 'destroy']);
+    Route::post('/favorites/{recipeId}', [FavoriteController::class, 'store']);
+    Route::delete('/favorites/{recipeId}', [FavoriteController::class, 'destroy']);
+
 });
 
-// Роуты только для админа
+
+// ==========================================
+// 3. Админ-панель (только для администраторов)
+// ==========================================
 Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
 
     Route::get('/dashboard', function () {
@@ -33,20 +61,7 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
 
     // Сюда другие участники добавят: users, recipes management
 });
-// Защищенные роуты (создание, редактирование, удаление — только для авторизованных)
-Route::middleware('auth')->group(function () {
-    Route::resource('recipes', \App\Http\Controllers\RecipeController::class)->except(['index', 'show']);
-
-    // Твой роут "Мои рецепты"
-    Route::get('/my-recipes', function () {
-        $recipes = auth()->user()->recipes()->latest()->paginate(10);
-        return view('recipes.my-recipes', compact('recipes'));
-    })->name('recipes.my-recipes');
-});
-// Recipe routes
-// Открытые роуты для всех (список всех рецептов и просмотр одного рецепта)
-Route::resource('recipes', \App\Http\Controllers\RecipeController::class)->only(['index', 'show']);
 
 
-
+// Роуты авторизации (логин, регистрация, пароли)
 require __DIR__.'/auth.php';

@@ -25,9 +25,7 @@ class Recipe extends Model
         });
     }
 
-    // -------------------------
-    // Relationships
-    // -------------------------
+    // Relationsjip
 
     public function user()
     {
@@ -49,9 +47,10 @@ class Recipe extends Model
      * BUGFIX: pivot table name was 'ingredient_recipe' — corrected to 'recipe_ingredient'
      * to match the actual migration file.
      */
+    // Many-to-many
     public function ingredients()
     {
-        return $this->belongsToMany(Ingredient::class, 'recipe_ingredient')
+        return $this->belongsToMany(Ingredient::class, 'ingredient_recipe')
             ->withPivot('amount', 'unit')
             ->withTimestamps();
     }
@@ -77,12 +76,12 @@ class Recipe extends Model
     // Helpers
     // -------------------------
 
-    public function isPublished(): bool
+    public function isPublished() : bool
     {
         return $this->status === 'published';
     }
 
-    public function isOwnedBy(User $user): bool
+    public function isOwnedBy(User $user) : bool
     {
         return $this->user_id === $user->id;
     }
@@ -101,4 +100,5 @@ class Recipe extends Model
             ? asset('storage/' . $this->image)
             : asset('images/default-recipe.jpg');
     }
+
 }
