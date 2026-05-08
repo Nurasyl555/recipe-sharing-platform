@@ -56,9 +56,9 @@ class Recipe extends Model
 
     public function ingredients()
     {
-        // Указываем, что вместе с ингредиентом нужно доставать
-        // его количество (quantity) и единицу измерения (unit) из промежуточной таблицы
-        return $this->belongsToMany(Ingredient::class)
-            ->withPivot('quantity', 'unit');
+        // 1. Явно указываем нестандартное имя таблицы: 'recipe_ingredient'
+        // 2. Исправляем 'quantity' на 'amount'
+        return $this->belongsToMany(Ingredient::class, 'recipe_ingredient')
+            ->withPivot('amount', 'unit');
     }
 }

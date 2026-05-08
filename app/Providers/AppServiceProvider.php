@@ -24,9 +24,7 @@ class AppServiceProvider extends ServiceProvider
 
         // The admin can do anything
         Gate::before(function (User $user, string $ability) {
-            if ($user->isAdmin()) {
-                return true;
-            }
+            return $user->isAdmin() ? true : null;
         });
 
         // Who can manage users
