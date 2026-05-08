@@ -22,6 +22,8 @@ class Recipe extends Model
         'image',
         'status',
         'user_id',
+        'category_id',
+        'cuisine_id',
     ];
 
     protected static function booted(): void
@@ -41,5 +43,22 @@ class Recipe extends Model
     public function ratings()
     {
         return $this->hasMany(Rating::class);
+    }
+    public function category()
+    {
+        return $this->belongsTo(Category::class);
+    }
+    // Добавь вот этот блок:
+    public function cuisine()
+    {
+        return $this->belongsTo(Cuisine::class);
+    }
+
+    public function ingredients()
+    {
+        // Указываем, что вместе с ингредиентом нужно доставать
+        // его количество (quantity) и единицу измерения (unit) из промежуточной таблицы
+        return $this->belongsToMany(Ingredient::class)
+            ->withPivot('quantity', 'unit');
     }
 }
