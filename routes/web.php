@@ -30,10 +30,10 @@ Route::middleware('auth')->group(function () {
         return view('recipes.my-recipes', compact('recipes'));
     })->name('recipes.my-recipes');
 
-    Route::post('/ratings', [RatingController::class, 'store']);
-    Route::delete('/ratings/{recipeId}', [RatingController::class, 'destroy']);
-    Route::post('/favorites/{recipeId}', [FavoriteController::class, 'store']);
-    Route::delete('/favorites/{recipeId}', [FavoriteController::class, 'destroy']);
+    Route::post('/ratings', [RatingController::class, 'store'])->name('ratings.store');
+    Route::delete('/ratings/{recipeId}', [RatingController::class, 'destroy'])->name('ratings.destroy');
+    Route::post('/favorites/{recipeId}', [FavoriteController::class, 'store'])->name('favorites.store');
+    Route::delete('/favorites/{recipeId}', [FavoriteController::class, 'destroy'])->name('favorites.destroy');
 });
 
 // ==========================================
@@ -48,5 +48,29 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
         return view('admin.dashboard');
     })->name('dashboard');
 });
+// Админ панель
+Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
 
+    // Главная панель
+    Route::get('/dashboard', function () {
+        // Берем статистику и рецепты, ожидающие проверки
+        $pendingRecipes = \App\Models\Recipe::with('user')->where('status', 'draft')->latest()->get();
+        $totalRecipes = \App\Models\Recipe::count();
+        $totalUsers = \App\Models\User::count();
+
+        return view('admin.dashboard', compact('pendingRecipes', 'totalRecipes', 'totalUsers'));
+    })->name('dashboard');
+
+    // Одобрить рецепт
+    Route::patch('/recipes/{recipe}/approve', function (\App\Models\Recipe $recipe) {
+        $recipe->update(['status' => 'published']);
+        return back()->with('success', 'Recipe approved and published!');
+    })->name('recipes.approve');
+
+    // Отклонить рецепт
+    Route::patch('/recipes/{recipe}/reject', function (\App\Models\Recipe $recipe) {
+        $recipe->update(['status' => 'rejected']);
+        return back()->with('success', 'Recipe rejected.');
+    })->name('recipes.reject');
+});
 require __DIR__.'/auth.php';
