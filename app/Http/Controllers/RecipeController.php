@@ -47,7 +47,11 @@ class RecipeController extends Controller
             ->latest()
             ->paginate(12);
 
-        return view('recipes.index', compact('recipes'));
+        // 1. ДОБАВЬ ВОТ ЭТУ СТРОКУ: Получаем все кухни для фильтра
+        $cuisines = Cuisine::all();
+
+        // 2. ОБНОВИ ЭТУ СТРОКУ: Передаем обе переменные в шаблон
+        return view('recipes.index', compact('recipes', 'cuisines'));
     }
 
     /**
