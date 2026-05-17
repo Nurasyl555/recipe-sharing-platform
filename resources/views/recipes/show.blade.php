@@ -1,174 +1,216 @@
 <x-app-layout>
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        <div class="lg:col-span-2">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+        <!-- Hero Section -->
+        <div class="relative rounded-[3rem] overflow-hidden shadow-2xl mb-12 h-[500px] group">
             @if($recipe->image)
                 <img src="{{ asset('storage/' . $recipe->image) }}" alt="{{ $recipe->title }}"
-                     class="w-full h-96 object-cover rounded-lg shadow-lg">
+                     class="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-1000">
             @else
-                <div class="w-full h-96 bg-orange-100 flex items-center justify-center rounded-lg shadow-lg">
-                    <span class="text-orange-400 text-xl">No image available</span>
+                <div class="w-full h-full bg-gradient-to-br from-lime-100 to-lime-200 flex items-center justify-center">
+                    <svg class="w-32 h-32 text-lime-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                    </svg>
                 </div>
             @endif
 
-            <div class="mt-6">
-                <div class="flex justify-between items-start">
-                    <div>
-                        <h1 class="text-4xl font-bold text-gray-900">{{ $recipe->title }}</h1>
-                        <p class="text-gray-600 mt-2">By {{ $recipe->user->name }}</p>
-                    </div>
+            <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
 
-                    <div class="text-right">
-                        <div class="text-3xl font-bold text-yellow-500">⭐ {{ round($recipe->ratings->avg('score') ?? 0, 1) }}</div>
-                        <p class="text-gray-600">({{ $recipe->ratings->count() }} reviews)</p>
+            <div class="absolute bottom-10 left-10 right-10">
+                <div class="flex flex-wrap gap-3 mb-4">
+                    <span class="backdrop-blur-md bg-white/20 text-white text-xs font-bold uppercase tracking-widest px-4 py-2 rounded-full ring-1 ring-white/30">
+                        {{ $recipe->cuisine->name ?? 'World' }}
+                    </span>
+                    <span class="backdrop-blur-md bg-lime-500/50 text-white text-xs font-bold uppercase tracking-widest px-4 py-2 rounded-full ring-1 ring-white/30">
+                        {{ $recipe->category->name ?? 'Dish' }}
+                    </span>
+                </div>
+                <h1 class="text-5xl md:text-6xl font-black text-white leading-tight mb-4 drop-shadow-lg">
+                    {{ $recipe->title }}
+                </h1>
+                <div class="flex items-center gap-4">
+                    <div class="flex items-center gap-2">
+                        @if($recipe->user->avatar)
+                            <img src="{{ asset('storage/' . $recipe->user->avatar) }}" class="w-10 h-10 rounded-full border-2 border-white">
+                        @else
+                            <div class="w-10 h-10 rounded-full bg-lime-500 flex items-center justify-center text-white font-bold border-2 border-white">
+                                {{ substr($recipe->user->name, 0, 1) }}
+                            </div>
+                        @endif
+                        <span class="text-white font-medium">By {{ $recipe->user->name }}</span>
+                    </div>
+                    <div class="h-4 w-px bg-white/30"></div>
+                    <div class="flex items-center text-yellow-400 gap-1 font-bold text-lg">
+                        ⭐ {{ round($recipe->ratings->avg('score') ?? 0, 1) }}
+                        <span class="text-white/60 text-sm font-normal">({{ $recipe->ratings->count() }} reviews)</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-12">
+            <!-- Left Column: Details -->
+            <div class="lg:col-span-8 space-y-12">
+                <!-- Info Grid -->
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+                    <div class="bg-gray-50 p-6 rounded-[2rem] text-center border border-gray-100 shadow-sm hover:bg-white hover:shadow-xl transition-all duration-300">
+                        <p class="text-gray-400 text-xs font-bold uppercase mb-1">Prep</p>
+                        <p class="text-xl font-black text-gray-900">{{ $recipe->prep_time }} <span class="text-xs font-medium">min</span></p>
+                    </div>
+                    <div class="bg-gray-50 p-6 rounded-[2rem] text-center border border-gray-100 shadow-sm hover:bg-white hover:shadow-xl transition-all duration-300">
+                        <p class="text-gray-400 text-xs font-bold uppercase mb-1">Cook</p>
+                        <p class="text-xl font-black text-gray-900">{{ $recipe->cook_time }} <span class="text-xs font-medium">min</span></p>
+                    </div>
+                    <div class="bg-gray-50 p-6 rounded-[2rem] text-center border border-gray-100 shadow-sm hover:bg-white hover:shadow-xl transition-all duration-300">
+                        <p class="text-gray-400 text-xs font-bold uppercase mb-1">Serves</p>
+                        <p class="text-xl font-black text-gray-900">{{ $recipe->servings }} <span class="text-xs font-medium">ppl</span></p>
+                    </div>
+                    <div class="bg-gray-50 p-6 rounded-[2rem] text-center border border-gray-100 shadow-sm hover:bg-white hover:shadow-xl transition-all duration-300">
+                        <p class="text-gray-400 text-xs font-bold uppercase mb-1">Level</p>
+                        <p class="text-xl font-black text-gray-900">{{ ucfirst($recipe->difficulty) }}</p>
                     </div>
                 </div>
 
-                <div class="grid grid-cols-3 gap-4 mt-6 bg-gray-100 p-4 rounded-lg">
-                    <div>
-                        <p class="text-gray-600 text-sm">Prep Time</p>
-                        <p class="text-lg font-bold">{{ $recipe->prep_time }} min</p>
-                    </div>
-                    <div>
-                        <p class="text-gray-600 text-sm">Cook Time</p>
-                        <p class="text-lg font-bold">{{ $recipe->cook_time }} min</p>
-                    </div>
-                    <div>
-                        <p class="text-gray-600 text-sm">Servings</p>
-                        <p class="text-lg font-bold">{{ $recipe->servings }}</p>
-                    </div>
+                <!-- Description -->
+                <div class="prose prose-lg max-w-none text-gray-600 leading-relaxed italic">
+                    "{{ $recipe->description }}"
                 </div>
 
-                <div class="mt-8">
-                    <h2 class="text-2xl font-bold text-gray-900 mb-4">Ingredients</h2>
-                    <ul class="space-y-2">
+                <!-- Ingredients -->
+                <div class="bg-white rounded-[2.5rem] p-10 shadow-sm border border-lime-50">
+                    <h2 class="text-3xl font-bold text-gray-900 mb-8 flex items-center gap-3">
+                        <span class="w-10 h-10 bg-lime-100 text-lime-600 rounded-xl flex items-center justify-center">🥗</span>
+                        Ingredients
+                    </h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         @foreach($recipe->ingredients as $ingredient)
-                            <li class="flex items-center text-gray-700">
-                                <span class="w-2 h-2 bg-orange-500 rounded-full mr-3"></span>
-                                {{ $ingredient->name }} - {{ $ingredient->pivot->amount ?? '' }} {{ $ingredient->pivot->unit ?? '' }}
-                            </li>
-                        @endforeach
-                    </ul>
-                </div>
-
-                <div class="mt-8">
-                    <h2 class="text-2xl font-bold text-gray-900 mb-4">Instructions</h2>
-                    <div class="prose max-w-none">
-                        {!! nl2br(e($recipe->instructions)) !!}
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="space-y-6">
-            @auth
-                <div class="space-y-2">
-                    @if(auth()->id() === $recipe->user_id)
-                        <a href="{{ route('recipes.edit', $recipe) }}"
-                           class="w-full block bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 text-center transition">
-                            Edit Recipe
-                        </a>
-                        <form action="{{ route('recipes.destroy', $recipe) }}" method="POST" class="w-full">
-                            @csrf
-                            @method('DELETE')
-                            <button class="w-full bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition">
-                                Delete Recipe
-                            </button>
-                        </form>
-                    @endif
-
-                    <div x-data="{ isFavorite: {{ auth()->user()->favorites()->where('recipe_id', $recipe->id)->exists() ? 'true' : 'false' }} }">
-                        <form action="{{ route('favorites.store', $recipe->id) }}" method="POST" x-show="!isFavorite">
-                            @csrf
-                            <button type="submit" class="w-full bg-pink-500 text-white px-4 py-2 rounded-lg hover:bg-pink-600 transition">
-                                🤍 Add to Favorites
-                            </button>
-                        </form>
-                        <form action="{{ route('favorites.destroy', $recipe->id) }}" method="POST" x-show="isFavorite">
-                            @csrf
-                            @method('DELETE')
-                            <button type="submit" class="w-full bg-gray-200 text-gray-800 px-4 py-2 rounded-lg hover:bg-gray-300 transition">
-                                ❤️ Remove from Favorites
-                            </button>
-                        </form>
-                    </div>
-                </div>
-            @else
-                <a href="{{ route('login') }}" class="w-full block bg-orange-500 text-white px-4 py-2 rounded-lg hover:bg-orange-600 text-center transition">
-                    Login to Rate & Save
-                </a>
-            @endauth
-
-            <div class="bg-white p-4 rounded-lg shadow-md">
-                <h3 class="font-bold text-gray-900 mb-3">Recipe Info</h3>
-                <div class="space-y-2 text-sm">
-                    <div>
-                        <p class="text-gray-600">Category</p>
-                        <span class="text-orange-500 font-medium">{{ $recipe->category->name ?? 'None' }}</span>
-                    </div>
-                    <div>
-                        <p class="text-gray-600">Cuisine</p>
-                        <span class="text-orange-500 font-medium">{{ $recipe->cuisine->name ?? 'None' }}</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="mt-12 bg-white p-8 rounded-lg shadow-md">
-        <h2 class="text-2xl font-bold text-gray-900 mb-6">Reviews</h2>
-
-        @auth
-            <form action="{{ route('ratings.store') }}" method="POST" class="mb-8 border-b pb-8">
-                @csrf
-                <input type="hidden" name="recipe_id" value="{{ $recipe->id }}">
-
-                <div class="mb-4">
-                    <label class="block text-gray-700 font-bold mb-2">Your Rating</label>
-                    <div class="flex gap-2 flex-row-reverse justify-end" style="width: max-content;">
-                        @for($i = 5; $i >= 1; $i--)
-                            <input type="radio" id="star{{ $i }}" name="score" value="{{ $i }}" class="peer hidden" required />
-                            <label for="star{{ $i }}" class="cursor-pointer text-3xl text-gray-300 peer-hover:text-yellow-400 peer-checked:text-yellow-500">
-                                ⭐
+                            <label class="flex items-center p-4 rounded-2xl hover:bg-lime-50/50 cursor-pointer transition-colors group">
+                                <input type="checkbox" class="w-6 h-6 rounded-lg border-lime-200 text-lime-500 focus:ring-lime-500 mr-4">
+                                <span class="text-gray-700 font-medium group-hover:text-gray-900 transition-colors">
+                                    {{ $ingredient->name }}
+                                    <span class="text-gray-400 ml-1 font-normal">— {{ $ingredient->pivot->amount ?? '' }} {{ $ingredient->pivot->unit ?? '' }}</span>
+                                </span>
                             </label>
-                        @endfor
+                        @endforeach
                     </div>
                 </div>
 
-                <div class="mb-4">
-                    <textarea name="comment" placeholder="Share your thoughts..." required
-                              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500"></textarea>
+                <!-- Instructions -->
+                <div class="space-y-8">
+                    <h2 class="text-3xl font-bold text-gray-900 mb-8 flex items-center gap-3">
+                        <span class="w-10 h-10 bg-lime-100 text-lime-600 rounded-xl flex items-center justify-center">👨‍🍳</span>
+                        Cooking Steps
+                    </h2>
+                    <div class="space-y-10">
+                        @php
+                            $steps = explode("\n", $recipe->instructions);
+                            $steps = array_filter($steps, fn($value) => !empty(trim($value)));
+                        @endphp
+                        @foreach($steps as $index => $step)
+                            <div class="flex gap-8 relative group">
+                                <div class="flex-none w-16 h-16 rounded-3xl bg-lime-50 text-lime-300 group-hover:bg-lime-500 group-hover:text-white transition-all duration-500 flex items-center justify-center text-2xl font-black">
+                                    {{ sprintf('%02d', $index + 1) }}
+                                </div>
+                                <div class="pt-2">
+                                    <p class="text-xl text-gray-700 leading-relaxed font-medium group-hover:text-gray-900 transition-colors">
+                                        {{ trim($step) }}
+                                    </p>
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
                 </div>
+            </div>
 
-                <button type="submit" class="bg-orange-500 text-white px-6 py-2 rounded-lg hover:bg-orange-600 transition">
-                    Post Review
-                </button>
-            </form>
-        @endauth
-
-        <div class="space-y-4">
-            @forelse($recipe->ratings as $rating)
-                <div class="border-t pt-4">
-                    <div class="flex justify-between items-start">
-                        <div>
-                            <p class="font-bold text-gray-900">{{ $rating->user->name }}</p>
-                            <p class="text-yellow-500">{{ str_repeat('⭐', $rating->score) }}</p>
-                        </div>
-                        @auth
-                            @if(auth()->id() === $rating->user_id)
-                                <form action="{{ route('ratings.destroy', $recipe->id) }}" method="POST">
+            <!-- Right Column: Actions & Meta -->
+            <div class="lg:col-span-4 space-y-8">
+                @auth
+                    <div class="bg-gray-900 rounded-[2.5rem] p-8 text-white shadow-xl">
+                        <h3 class="text-xl font-bold mb-6">Recipe Actions</h3>
+                        <div class="space-y-4">
+                            @if(auth()->id() === $recipe->user_id || auth()->user()->isAdmin())
+                                <a href="{{ route('recipes.edit', $recipe) }}"
+                                   class="w-full flex items-center justify-center gap-2 bg-white text-gray-900 px-6 py-4 rounded-2xl font-bold hover:bg-orange-500 hover:text-white transition-all">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                                    Edit Details
+                                </a>
+                                <form action="{{ route('recipes.destroy', $recipe) }}" method="POST" onsubmit="return confirm('Are you sure?')">
                                     @csrf
                                     @method('DELETE')
-                                    <button class="text-red-500 hover:text-red-700 text-sm">Delete</button>
+                                    <button class="w-full bg-white/10 text-white/70 px-6 py-4 rounded-2xl font-bold hover:bg-red-500 hover:text-white transition-all">
+                                        Delete Recipe
+                                    </button>
                                 </form>
                             @endif
-                        @endauth
+
+                            <div x-data="{ isFavorite: {{ auth()->user()->favorites()->where('recipe_id', $recipe->id)->exists() ? 'true' : 'false' }} }">
+                                <form action="{{ route('favorites.store', $recipe->id) }}" method="POST" x-show="!isFavorite">
+                                    @csrf
+                                    <button type="submit" class="w-full bg-orange-500 text-white px-6 py-4 rounded-2xl font-bold hover:bg-orange-600 shadow-lg shadow-orange-500/30 transition-all flex items-center justify-center gap-2">
+                                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path></svg>
+                                        Save to Collection
+                                    </button>
+                                </form>
+                                <form action="{{ route('favorites.destroy', $recipe->id) }}" method="POST" x-show="isFavorite">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="w-full bg-white/10 text-white/90 px-6 py-4 rounded-2xl font-bold hover:bg-white/20 transition-all flex items-center justify-center gap-2">
+                                        ❤️ In your Collection
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
                     </div>
-                    <p class="text-gray-700 mt-2">{{ $rating->comment }}</p>
-                    <p class="text-gray-500 text-sm mt-2">{{ $rating->created_at->diffForHumans() }}</p>
+                @endauth
+
+                <!-- Review Section in Sidebar -->
+                <div class="bg-white rounded-[2.5rem] p-8 shadow-sm border border-gray-100">
+                    <h3 class="text-2xl font-bold text-gray-900 mb-6">Reviews</h3>
+
+                    @auth
+                        <form action="{{ route('ratings.store') }}" method="POST" class="mb-10">
+                            @csrf
+                            <input type="hidden" name="recipe_id" value="{{ $recipe->id }}">
+
+                            <div class="mb-6">
+                                <div class="flex gap-2 flex-row-reverse justify-end" style="width: max-content;">
+                                    @for($i = 5; $i >= 1; $i--)
+                                        <input type="radio" id="star{{ $i }}" name="score" value="{{ $i }}" class="peer hidden" required />
+                                        <label for="star{{ $i }}" class="cursor-pointer text-3xl text-gray-200 peer-hover:text-yellow-400 peer-checked:text-yellow-400 transition-colors">⭐</label>
+                                    @endfor
+                                </div>
+                            </div>
+
+                            <div class="mb-4">
+                                <textarea name="comment" placeholder="Tell us what you think..." required
+                                          class="w-full px-5 py-4 bg-gray-50 border-none rounded-2xl focus:ring-2 focus:ring-lime-500 min-h-[120px]"></textarea>
+                            </div>
+
+                            <button type="submit" class="w-full bg-gray-900 text-white py-4 rounded-2xl font-bold hover:bg-lime-500 transition-all">
+                                Post Review
+                            </button>
+                        </form>
+                    @endauth
+
+                    <div class="space-y-6">
+                        @forelse($recipe->ratings->sortByDesc('created_at')->take(5) as $rating)
+                            <div class="pb-6 border-b border-gray-50 last:border-0 last:pb-0">
+                                <div class="flex items-center gap-3 mb-2">
+                                    <div class="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-xs font-bold text-gray-500">
+                                        {{ substr($rating->user->name, 0, 1) }}
+                                    </div>
+                                    <span class="font-bold text-gray-800 text-sm">{{ $rating->user->name }}</span>
+                                    <span class="text-yellow-400 text-xs ml-auto">{{ str_repeat('⭐', $rating->score) }}</span>
+                                </div>
+                                <p class="text-gray-600 text-sm leading-relaxed">
+                                    {{ $rating->comment }}
+                                </p>
+                            </div>
+                        @empty
+                            <p class="text-gray-400 text-center italic">No reviews yet. Be the first!</p>
+                        @endforelse
+                    </div>
                 </div>
-            @empty
-                <p class="text-gray-500 text-center py-8">No reviews yet. Be the first to review!</p>
-            @endforelse
+            </div>
         </div>
     </div>
 </x-app-layout>

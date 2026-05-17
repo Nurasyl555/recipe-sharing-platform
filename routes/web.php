@@ -10,6 +10,13 @@ Route::get('/', function () {
     return view('welcome');
 });
 
+Route::get('/lang/{locale}', function ($locale) {
+    if (in_array($locale, ['en', 'ru', 'kk'])) {
+        session(['locale' => $locale]);
+    }
+    return back();
+})->name('lang.switch');
+
 // ==========================================
 // 1. ЗАЩИЩЕННЫЕ РОУТЫ (Должны быть выше!)
 // ==========================================

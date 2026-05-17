@@ -40,18 +40,36 @@ class RecipeController extends Controller
     //-------------------------------
 
     // GET /recipes — a list of all published recipes
-    public function index()
+    public function index(\Illuminate\Http\Request $request)
     {
         $recipes = Recipe::with(['user', 'category', 'cuisine'])
             ->where('status', 'published')
+            ->when($request->search, function ($query, $search) {
+                $query->where(function($q) use ($search) {
+                    $q->where('title', 'like', "%{$search}%")
+                      ->orWhere('description', 'like', "%{$search}%");
+                });
+            })
+            ->when($request->cuisine, function ($query, $cuisineId) {
+                $query->where('cuisine_id', $cuisineId);
+            })
+            ->when($request->category, function ($query, $categoryId) {
+                $query->where('category_id', $categoryId);
+            })
+            ->when($request->difficulty, function ($query, $difficulty) {
+                $query->where('difficulty', $difficulty);
+            })
+            ->when($request->max_time, function ($query, $maxTime) {
+                $query->whereRaw('(prep_time + cook_time) <= ?', [$maxTime]);
+            })
             ->latest()
-            ->paginate(12);
+            ->paginate(12)
+            ->withQueryString();
 
-        // 1. ДОБАВЬ ВОТ ЭТУ СТРОКУ: Получаем все кухни для фильтра
         $cuisines = Cuisine::all();
+        $categories = Category::all();
 
-        // 2. ОБНОВИ ЭТУ СТРОКУ: Передаем обе переменные в шаблон
-        return view('recipes.index', compact('recipes', 'cuisines'));
+        return view('recipes.index', compact('recipes', 'cuisines', 'categories'));
     }
 
     /**

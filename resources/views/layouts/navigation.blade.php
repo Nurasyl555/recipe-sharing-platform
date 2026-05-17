@@ -4,7 +4,7 @@
             <div class="flex">
                 <div class="shrink-0 flex items-center">
                     <a href="{{ route('recipes.index') }}">
-                        <x-application-logo class="block h-9 w-auto fill-current text-orange-500" />
+                        <x-application-logo class="block h-9 w-auto fill-current text-lime-600" />
                     </a>
                 </div>
 
@@ -24,7 +24,7 @@
 
                         @if(Auth::user()->isAdmin())
                             <x-nav-link :href="route('admin.dashboard')" :active="request()->routeIs('admin.dashboard')">
-                                <span class="text-red-500 font-semibold">{{ __('Admin Panel') }}</span>
+                                <span class="text-lime-700 font-bold border-b-2 border-lime-500">{{ __('Admin Panel') }}</span>
                             </x-nav-link>
                         @endif
                     @endauth
@@ -35,12 +35,12 @@
                 @auth
                     <x-dropdown align="right" width="48">
                         <x-slot name="trigger">
-                            <button class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-gray-500 bg-white hover:text-gray-700 focus:outline-none transition ease-in-out duration-150">
+                            <button class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-lime-700 bg-white hover:text-lime-900 focus:outline-none transition ease-in-out duration-150">
                                 <div class="flex items-center space-x-2">
                                     @if(Auth::user()->avatar)
-                                        <img class="h-8 w-8 rounded-full object-cover" src="{{ asset('storage/' . Auth::user()->avatar) }}" alt="{{ Auth::user()->name }}">
+                                        <img class="h-8 w-8 rounded-full object-cover border-2 border-lime-200" src="{{ asset('storage/' . Auth::user()->avatar) }}" alt="{{ Auth::user()->name }}">
                                     @else
-                                        <div class="h-8 w-8 rounded-full bg-orange-100 text-orange-500 flex items-center justify-center font-bold">
+                                        <div class="h-8 w-8 rounded-full bg-lime-100 text-lime-600 flex items-center justify-center font-bold border-2 border-lime-200">
                                             {{ substr(Auth::user()->name, 0, 1) }}
                                         </div>
                                     @endif
@@ -72,11 +72,14 @@
                         </x-slot>
                     </x-dropdown>
                 @else
-                    <a href="{{ route('login') }}" class="text-sm font-medium text-gray-700 hover:text-orange-500 transition">Log in</a>
+                    <a href="{{ route('login') }}" class="text-sm font-bold text-lime-700 hover:text-lime-900 transition">{{ __('Log in') }}</a>
                     @if (Route::has('register'))
-                        <a href="{{ route('register') }}" class="ml-4 text-sm font-medium text-white bg-orange-500 hover:bg-orange-600 px-4 py-2 rounded-lg transition">Register</a>
+                        <a href="{{ route('register') }}" class="ml-4 text-sm font-bold text-white bg-lime-600 hover:bg-lime-700 px-5 py-2.5 rounded-xl shadow-md shadow-lime-200 transition active:scale-95">{{ __('Register') }}</a>
                     @endif
                 @endauth
+
+                {{-- language switcher --}}
+                @include('partials.lang-switcher')
             </div>
 
             <div class="-me-2 flex items-center sm:hidden">
@@ -114,18 +117,18 @@
         </div>
 
         @auth
-            <div class="pt-4 pb-1 border-t border-gray-200">
+            <div class="pt-4 pb-1 border-t border-lime-100">
                 <div class="px-4 flex items-center space-x-3">
                     @if(Auth::user()->avatar)
-                        <img class="h-10 w-10 rounded-full object-cover" src="{{ asset('storage/' . Auth::user()->avatar) }}" alt="{{ Auth::user()->name }}">
+                        <img class="h-10 w-10 rounded-full object-cover border-2 border-lime-200" src="{{ asset('storage/' . Auth::user()->avatar) }}" alt="{{ Auth::user()->name }}">
                     @else
-                        <div class="h-10 w-10 rounded-full bg-orange-100 text-orange-500 flex items-center justify-center font-bold">
+                        <div class="h-10 w-10 rounded-full bg-lime-100 text-lime-600 flex items-center justify-center font-bold border-2 border-lime-200">
                             {{ substr(Auth::user()->name, 0, 1) }}
                         </div>
                     @endif
                     <div>
-                        <div class="font-medium text-base text-gray-800">{{ Auth::user()->name }}</div>
-                        <div class="font-medium text-sm text-gray-500">{{ Auth::user()->email }}</div>
+                        <div class="font-bold text-base text-lime-800">{{ Auth::user()->name }}</div>
+                        <div class="font-medium text-sm text-lime-600">{{ Auth::user()->email }}</div>
                     </div>
                 </div>
 
