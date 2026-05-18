@@ -14,6 +14,7 @@ return [
                  */
                 'api' => 'api/documentation',
             ],
+
             'paths' => [
                 /*
                  * Edit to include full URL in ui for assets
@@ -45,10 +46,15 @@ return [
                  */
                 'annotations' => [
                     base_path('app/Http/Controllers'),
+                    base_path('app/Http/Resources'),
+                    base_path('app/Models'),
+                    base_path('routes'),
+                    base_path('recipe/CONTROLLER'),
                 ],
             ],
         ],
     ],
+
     'defaults' => [
         'routes' => [
             /*
@@ -108,16 +114,16 @@ return [
              * @link https://zircote.github.io/swagger-php/reference/processors.html
              */
             'default_processors_configuration' => [
-            /** Example */
-            /**
-             * 'operationId.hash' => true,
-             * 'pathFilter' => [
-             * 'tags' => [
-             * '/pets/',
-             * '/store/',
-             * ],
-             * ],.
-             */
+                /** Example */
+                /**
+                 * 'operationId.hash' => true,
+                 * 'pathFilter' => [
+                 *   'tags' => [
+                 *     '/pets/',
+                 *     '/store/',
+                 *   ],
+                 * ],
+                 */
             ],
 
             /**
@@ -167,7 +173,7 @@ return [
 
         /*
          * API security definitions. Will be generated into documentation file.
-        */
+         */
         'securityDefinitions' => [
             'securitySchemes' => [
                 /*
@@ -189,7 +195,7 @@ return [
                     'scopes' => [
                         'read:projects' => 'read your projects',
                         'write:projects' => 'modify projects in your account',
-                    ]
+                    ],
                 ],
                 */
 
@@ -216,6 +222,7 @@ return [
                 ],
                 */
             ],
+
             'security' => [
                 /*
                  * Examples of Securities
@@ -275,6 +282,7 @@ return [
         'ui' => [
             'display' => [
                 'dark_mode' => env('L5_SWAGGER_UI_DARK_MODE', false),
+
                 /*
                  * Controls the default expansion setting for the operations and tags. It can be :
                  * 'list' (expands only the tags),
@@ -308,6 +316,7 @@ return [
                 ],
             ],
         ],
+
         /*
          * Constants which can be used in annotations
          */

@@ -13,6 +13,9 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Support\Str;
 
+/**
+ * @OA\Tag(name="Recipes", description="Recipe management operations")
+ */
 class RecipeController extends Controller
 {
     // Private helpers---
@@ -39,6 +42,27 @@ class RecipeController extends Controller
     }
     //-------------------------------
 
+    /**
+     * @OA\Get(
+     *     path="/api/recipes",
+     *     summary="Get published recipes list",
+     *     tags={"Recipes"},
+     *     @OA\Parameter(name="search", in="query", description="Search by title or description", @OA\Schema(type="string")),
+     *     @OA\Parameter(name="cuisine", in="query", description="Filter by cuisine id", @OA\Schema(type="integer")),
+     *     @OA\Parameter(name="category", in="query", description="Filter by category id", @OA\Schema(type="integer")),
+     *     @OA\Parameter(name="difficulty", in="query", description="Filter by difficulty", @OA\Schema(type="string")),
+     *     @OA\Parameter(name="max_time", in="query", description="Filter by maximum total time", @OA\Schema(type="integer")),
+     *     @OA\Response(
+     *         response=200,
+     *         description="List of recipes",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean"),
+     *             @OA\Property(property="data", type="array", @OA\Items(ref="#/components/schemas/Recipe")),
+     *             @OA\Property(property="message", type="string")
+     *         )
+     *     )
+     * )
+     */
     // GET /recipes — a list of all published recipes
     public function index(\Illuminate\Http\Request $request)
     {
@@ -85,8 +109,35 @@ class RecipeController extends Controller
     }
 
     /**
-     * Store a newly created resource in storage.
-     * POST /recipes Save the new recipe
+     * @OA\Post(
+     *     path="/api/recipes",
+     *     summary="Create new recipe (authenticated)",
+     *     tags={"Recipes"},
+     *     security={{"bearerAuth":{}}},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"title","description","instructions"},
+     *             @OA\Property(property="title", type="string"),
+     *             @OA\Property(property="description", type="string"),
+     *             @OA\Property(property="instructions", type="string"),
+     *             @OA\Property(property="prep_time", type="integer"),
+     *             @OA\Property(property="cook_time", type="integer"),
+     *             @OA\Property(property="servings", type="integer"),
+     *             @OA\Property(property="difficulty", type="string"),
+     *             @OA\Property(property="category_id", type="integer"),
+     *             @OA\Property(property="cuisine_id", type="integer"),
+     *             @OA\Property(property="ingredients", type="array", @OA\Items(type="object",
+     *                 @OA\Property(property="name", type="string"),
+     *                 @OA\Property(property="amount", type="string"),
+     *                 @OA\Property(property="unit", type="string")
+     *             ))
+     *         )
+     *     ),
+     *     @OA\Response(response=201, description="Recipe created", @OA\JsonContent(ref="#/components/schemas/Recipe")),
+     *     @OA\Response(response=401, description="Unauthorized"),
+     *     @OA\Response(response=422, description="Validation failed")
+     * )
      */
     public function store(StoreRecipeRequest $request)
     {
@@ -110,8 +161,22 @@ class RecipeController extends Controller
     }
 
     /**
-     * Display the specified resource.
-     * GET /recipes/{recipe}
+     * @OA\Get(
+     *     path="/api/recipes/{id}",
+     *     summary="Get recipe by id",
+     *     tags={"Recipes"},
+     *     @OA\Parameter(name="id", in="path", required=true, @OA\Schema(type="integer")),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Recipe details",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean"),
+     *             @OA\Property(property="data", ref="#/components/schemas/Recipe"),
+     *             @OA\Property(property="message", type="string")
+     *         )
+     *     ),
+     *     @OA\Response(response=404, description="Not found")
+     * )
      */
     public function show(Recipe $recipe)
     {
@@ -160,8 +225,6 @@ class RecipeController extends Controller
             ->with('success', __('messages.recipe_updated_success'));
         }
 
-
-
     /**
      * Remove the specified resource from storage.
      */
@@ -174,10 +237,8 @@ class RecipeController extends Controller
         }
 
         $recipe->delete();
-return redirect()
-    ->route('recipes.my-recipes')
-    ->with('success', __('messages.recipe_deleted_success'));
-}
-
-
+        return redirect()
+            ->route('recipes.my-recipes')
+            ->with('success', __('messages.recipe_deleted_success'));
+    }
 }

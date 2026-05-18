@@ -4,10 +4,12 @@ namespace Tests\Feature;
 
 use App\Models\Recipe;
 use App\Models\Rating;
+use App\Models\User;
 use Tests\TestCase;
 
 class RatingTest extends TestCase
 {
+    // Существующие unit-тесты
     public function test_recipe_average_rating_calculated_correctly()
     {
         $recipe = Recipe::factory()->create();
@@ -44,5 +46,124 @@ class RatingTest extends TestCase
 
         $count = $recipe->ratings()->count();
         $this->assertEquals(0, $count);
+    }
+
+    // ===== API-тесты =====
+    public function test_guest_cannot_create_rating()
+    {
+        $recipe = Recipe::factory()->create();
+        $response = $this->postJson('/api/ratings', [
+            'recipe_id' => $recipe->id,
+            'rating' => 5,
+        ]);
+        $response->assertStatus(401);
+    }
+
+    public function test_authenticated_user_can_create_rating()
+    {
+        $user = User::factory()->create();
+        $recipe = Recipe::factory()->create();
+        $this->actingAs($user, 'sanctum');
+
+        $response = $this->postJson('/api/ratings', [
+            'recipe_id' => $recipe->id,
+            'rating' => 5,
+            'comment' => 'Delicious!',
+        ]);
+
+        $response->assertStatus(200)
+                 ->assertJsonStructure([
+                     'success',
+                     'data' => ['id', 'rating', 'comment', 'user' => ['id', 'name', 'email']],
+                     'message'
+                 ])
+                 ->assertJson(['success' => true, 'message' => 'Rating saved']);
+
+        $this->assertDatabaseHas('ratings', [
+            'user_id' => $user->id,
+            'recipe_id' => $recipe->id,
+            'rating' => 5,
+        ]);
+    }
+
+    public function test_rating_validation_fails_with_invalid_rating()
+    {
+        $user = User::factory()->create();
+        $recipe = Recipe::factory()->create();
+        $this->actingAs($user, 'sanctum');
+
+        $response = $this->postJson('/api/ratings', [
+            'recipe_id' => $recipe->id,
+            'rating' => 10,
+        ]);
+
+        $response->assertStatus(422)
+                 ->assertJsonStructure(['success', 'data', 'message', 'errors'])
+                 ->assertJson(['success' => false]);
+    }
+
+    public function test_rating_validation_fails_with_nonexistent_recipe()
+    {
+        $user = User::factory()->create();
+        $this->actingAs($user, 'sanctum');
+
+        $response = $this->postJson('/api/ratings', [
+            'recipe_id' => 999,
+            'rating' => 5,
+        ]);
+
+        $response->assertStatus(422)
+                 ->assertJson(['success' => false]);
+    }
+
+    public function test_authenticated_user_can_delete_rating()
+    {
+        $user = User::factory()->create();
+        $recipe = Recipe::factory()->create();
+        Rating::factory()->create([
+            'user_id' => $user->id,
+            'recipe_id' => $recipe->id,
+            'rating' => 4,
+        ]);
+
+        $this->actingAs($user, 'sanctum');
+        $response = $this->deleteJson("/api/ratings/{$recipe->id}");
+
+        $response->assertStatus(200)
+                 ->assertJsonStructure(['success', 'data', 'message'])
+                 ->assertJson(['success' => true, 'message' => 'Rating removed']);
+
+        $this->assertDatabaseMissing('ratings', [
+            'user_id' => $user->id,
+            'recipe_id' => $recipe->id,
+        ]);
+    }
+
+    public function test_user_can_update_their_rating()
+    {
+        $user = User::factory()->create();
+        $recipe = Recipe::factory()->create();
+        Rating::factory()->create([
+            'user_id' => $user->id,
+            'recipe_id' => $recipe->id,
+            'rating' => 3,
+        ]);
+
+        $this->actingAs($user, 'sanctum');
+        $response = $this->postJson('/api/ratings', [
+            'recipe_id' => $recipe->id,
+            'rating' => 5,
+            'comment' => 'Updated comment',
+        ]);
+
+        $response->assertStatus(200)
+                 ->assertJson(['success' => true]);
+
+        $this->assertDatabaseHas('ratings', [
+            'user_id' => $user->id,
+            'recipe_id' => $recipe->id,
+            'rating' => 5,
+            'comment' => 'Updated comment',
+        ]);
     }
 }
