@@ -11,9 +11,9 @@ use App\Http\Resources\UserResource;
 /**
  * @OA\Get(
  *     path="/api/health",
- *     tags={"System"},
+ *     tags={"Health"},
  *     summary="Health check",
- *     @OA\Response(response=200, description="API is healthy")
+ *     @OA\Response(response=200, description="API is running")
  * )
  */
 Route::get('/health', function () {
@@ -28,17 +28,9 @@ Route::middleware('auth:sanctum')->group(function () {
      * @OA\Get(
      *     path="/api/user",
      *     tags={"User"},
-     *     summary="Get current user",
+     *     summary="Get current user (auth)",
      *     security={{"bearerAuth":{}}},
-     *     @OA\Response(
-     *         response=200,
-     *         description="Current user",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="success", type="boolean"),
-     *             @OA\Property(property="data", ref="#/components/schemas/User"),
-     *             @OA\Property(property="message", type="string")
-     *         )
-     *     ),
+     *     @OA\Response(response=200, description="User data", @OA\JsonContent(ref="#/components/schemas/User")),
      *     @OA\Response(response=401, description="Unauthorized")
      * )
      */

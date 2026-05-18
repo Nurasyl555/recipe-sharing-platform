@@ -4,13 +4,7 @@ namespace App\Http\Resources;
 
 use Illuminate\Http\JsonResponse;
 
-/**
- * @OA\Schema(
- *     schema="ApiResponse",
- *     type="object",
- *     description="Standard API Response Wrapper"
- * )
- */
+
 class ApiResource
 {
     public static function success($data = null, string $message = 'Success', int $code = 200): JsonResponse

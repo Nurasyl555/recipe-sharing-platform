@@ -3,242 +3,132 @@
 namespace App\Http\Controllers;
 
 use App\Models\Recipe;
-use App\Models\Category;
-use App\Models\Cuisine;
-use App\Models\Ingredient;
 use App\Http\Requests\StoreRecipeRequest;
 use App\Http\Requests\UpdateRecipeRequest;
-use Illuminate\Support\Facades\Storage;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Support\Str;
+use OpenApi\Attributes as OA;
 
-/**
- * @OA\Tag(name="Recipes", description="Recipe management operations")
- */
 class RecipeController extends Controller
 {
-    // Private helpers---
-    private function syncIngredients(Recipe $recipe, array $names, array $amounts): void
+    #[OA\Get(
+        path: "/api/recipes",
+        operationId: "listRecipes",
+        tags: ["Recipes"],
+        summary: "List all recipes",
+        parameters: [
+            new OA\Parameter(name: "page", in: "query", schema: new OA\Schema(type: "integer", default: 1)),
+            new OA\Parameter(name: "limit", in: "query", schema: new OA\Schema(type: "integer", default: 15))
+        ],
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: "Recipes list retrieved",
+                content: new OA\JsonContent(
+                    properties: [
+                        new OA\Property(property: "data", type: "array", items: new OA\Items()),
+                        new OA\Property(property: "total", type: "integer"),
+                        new OA\Property(property: "per_page", type: "integer")
+                    ]
+                )
+            )
+        ]
+    )]
+    public function index()
     {
-        $sync = [];
-
-        foreach ($names as $index => $name) {
-            $ingredient = Ingredient::firstOrCreate(
-                ['name' => strtolower(trim($name))]
-            );
-            $sync[$ingredient->id] = ['amount' => $amounts[$index]];
-        }
-
-        $recipe->ingredients()->sync($sync);
+        return Recipe::paginate(15);
     }
 
-    private function  authorizeRecipe(Recipe $recipe): void
-    {
-        if (!auth()->user()->isAdmin() && !$recipe->isOwnedBy(auth()->user())) {
-            abort(403, 'You do not have permission to access this recipe.');
-        }
-
-    }
-    //-------------------------------
-
-    /**
-     * @OA\Get(
-     *     path="/api/recipes",
-     *     summary="Get published recipes list",
-     *     tags={"Recipes"},
-     *     @OA\Parameter(name="search", in="query", description="Search by title or description", @OA\Schema(type="string")),
-     *     @OA\Parameter(name="cuisine", in="query", description="Filter by cuisine id", @OA\Schema(type="integer")),
-     *     @OA\Parameter(name="category", in="query", description="Filter by category id", @OA\Schema(type="integer")),
-     *     @OA\Parameter(name="difficulty", in="query", description="Filter by difficulty", @OA\Schema(type="string")),
-     *     @OA\Parameter(name="max_time", in="query", description="Filter by maximum total time", @OA\Schema(type="integer")),
-     *     @OA\Response(
-     *         response=200,
-     *         description="List of recipes",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="success", type="boolean"),
-     *             @OA\Property(property="data", type="array", @OA\Items(ref="#/components/schemas/Recipe")),
-     *             @OA\Property(property="message", type="string")
-     *         )
-     *     )
-     * )
-     */
-    // GET /recipes — a list of all published recipes
-    public function index(\Illuminate\Http\Request $request)
-    {
-        $recipes = Recipe::with(['user', 'category', 'cuisine'])
-            ->where('status', 'published')
-            ->when($request->search, function ($query, $search) {
-                $query->where(function($q) use ($search) {
-                    $q->where('title', 'like', "%{$search}%")
-                      ->orWhere('description', 'like', "%{$search}%");
-                });
-            })
-            ->when($request->cuisine, function ($query, $cuisineId) {
-                $query->where('cuisine_id', $cuisineId);
-            })
-            ->when($request->category, function ($query, $categoryId) {
-                $query->where('category_id', $categoryId);
-            })
-            ->when($request->difficulty, function ($query, $difficulty) {
-                $query->where('difficulty', $difficulty);
-            })
-            ->when($request->max_time, function ($query, $maxTime) {
-                $query->whereRaw('(prep_time + cook_time) <= ?', [$maxTime]);
-            })
-            ->latest()
-            ->paginate(12)
-            ->withQueryString();
-
-        $cuisines = Cuisine::all();
-        $categories = Category::all();
-
-        return view('recipes.index', compact('recipes', 'cuisines', 'categories'));
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     * GET /recipes/create/ form create
-     */
-    public function create()
-    {
-        $categories = Category::all();
-        $cuisines = Cuisine::all();
-
-        return view('recipes.create', compact('categories', 'cuisines'));
-    }
-
-    /**
-     * @OA\Post(
-     *     path="/api/recipes",
-     *     summary="Create new recipe (authenticated)",
-     *     tags={"Recipes"},
-     *     security={{"bearerAuth":{}}},
-     *     @OA\RequestBody(
-     *         required=true,
-     *         @OA\JsonContent(
-     *             required={"title","description","instructions"},
-     *             @OA\Property(property="title", type="string"),
-     *             @OA\Property(property="description", type="string"),
-     *             @OA\Property(property="instructions", type="string"),
-     *             @OA\Property(property="prep_time", type="integer"),
-     *             @OA\Property(property="cook_time", type="integer"),
-     *             @OA\Property(property="servings", type="integer"),
-     *             @OA\Property(property="difficulty", type="string"),
-     *             @OA\Property(property="category_id", type="integer"),
-     *             @OA\Property(property="cuisine_id", type="integer"),
-     *             @OA\Property(property="ingredients", type="array", @OA\Items(type="object",
-     *                 @OA\Property(property="name", type="string"),
-     *                 @OA\Property(property="amount", type="string"),
-     *                 @OA\Property(property="unit", type="string")
-     *             ))
-     *         )
-     *     ),
-     *     @OA\Response(response=201, description="Recipe created", @OA\JsonContent(ref="#/components/schemas/Recipe")),
-     *     @OA\Response(response=401, description="Unauthorized"),
-     *     @OA\Response(response=422, description="Validation failed")
-     * )
-     */
+    #[OA\Post(
+        path: "/api/recipes",
+        operationId: "storeRecipe",
+        tags: ["Recipes"],
+        summary: "Create new recipe",
+        security: [["bearerAuth" => []]],
+        requestBody: new OA\RequestBody(
+            required: true,
+            content: new OA\JsonContent(
+                required: ["title", "description", "category_id"],
+                properties: [
+                    new OA\Property(property: "title", type: "string", example: "Pasta Carbonara"),
+                    new OA\Property(property: "description", type: "string"),
+                    new OA\Property(property: "category_id", type: "integer"),
+                    new OA\Property(property: "cuisine_id", type: "integer"),
+                    new OA\Property(property: "ingredients", type: "array", items: new OA\Items())
+                ]
+            )
+        ),
+        responses: [
+            new OA\Response(response: 201, description: "Recipe created"),
+            new OA\Response(response: 401, description: "Unauthenticated"),
+            new OA\Response(response: 422, description: "Validation error")
+        ]
+    )]
     public function store(StoreRecipeRequest $request)
     {
-        $data = $request->validated();
-
-        // image
-        if ($request->hasFile('image')) {
-            $data['image'] = $request->file('image')->store('recipes', 'public');
-        }
-
-        $data['user_id'] = auth()->id();
-        $data['status'] = 'draft';
-
-        $recipe = Recipe::create($data);
-
-        // Save ingredients via pivot
-        $this->syncIngredients($recipe, $request->ingredients, $request->amounts);
-        return redirect()
-            ->route('recipes.my-recipes')
-            ->with('success', __('messages.recipe_created_success'));
+        $recipe = Recipe::create($request->validated());
+        return response()->json($recipe, 201);
     }
 
-    /**
-     * @OA\Get(
-     *     path="/api/recipes/{id}",
-     *     summary="Get recipe by id",
-     *     tags={"Recipes"},
-     *     @OA\Parameter(name="id", in="path", required=true, @OA\Schema(type="integer")),
-     *     @OA\Response(
-     *         response=200,
-     *         description="Recipe details",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="success", type="boolean"),
-     *             @OA\Property(property="data", ref="#/components/schemas/Recipe"),
-     *             @OA\Property(property="message", type="string")
-     *         )
-     *     ),
-     *     @OA\Response(response=404, description="Not found")
-     * )
-     */
+    #[OA\Get(
+        path: "/api/recipes/{id}",
+        operationId: "showRecipe",
+        tags: ["Recipes"],
+        summary: "Get recipe by ID",
+        parameters: [
+            new OA\Parameter(name: "id", in: "path", required: true, schema: new OA\Schema(type: "integer"))
+        ],
+        responses: [
+            new OA\Response(response: 200, description: "Recipe retrieved"),
+            new OA\Response(response: 404, description: "Recipe not found")
+        ]
+    )]
     public function show(Recipe $recipe)
     {
-        $recipe->load(['user', 'category', 'cuisine', 'ingredients', 'ratings.user']);
-
-        return view('recipes.show', compact('recipe'));
+        return response()->json($recipe);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     * GET /recipes/{recipe}/edit
-     */
-    public function edit(Recipe $recipe)
-    {
-        $this->authorizeRecipe($recipe);
-        $categories = Category::all();
-        $cuisines   = Cuisine::all();
-
-        return view('recipes.edit', compact('recipe', 'categories', 'cuisines'));
-
-    }
-
-    /**
-     * Update the specified resource in storage.
-     * PUT /recipes/{recipe}
-     */
+    #[OA\Put(
+        path: "/api/recipes/{id}",
+        operationId: "updateRecipe",
+        tags: ["Recipes"],
+        summary: "Update recipe",
+        security: [["bearerAuth" => []]],
+        parameters: [
+            new OA\Parameter(name: "id", in: "path", required: true, schema: new OA\Schema(type: "integer"))
+        ],
+        requestBody: new OA\RequestBody(
+            required: true,
+            content: new OA\JsonContent()
+        ),
+        responses: [
+            new OA\Response(response: 200, description: "Recipe updated"),
+            new OA\Response(response: 401, description: "Unauthenticated"),
+            new OA\Response(response: 404, description: "Recipe not found")
+        ]
+    )]
     public function update(UpdateRecipeRequest $request, Recipe $recipe)
     {
-        $data = $request->validated();
+        $recipe->update($request->validated());
+        return response()->json($recipe);
+    }
 
-        // Заменить фото если загрузили новое
-        if ($request->hasFile('image')) {
-            if ($recipe->image) {
-                Storage::disk('public')->delete($recipe->image);
-            }
-            $data['image'] = $request->file('image')->store('recipes', 'public');
-        }
-
-        $recipe->update($data);
-
-        // Обновить ингредиенты
-        $this->syncIngredients($recipe, $request->ingredients, $request->amounts);
-
-        return redirect()
-            ->route('recipes.show', $recipe)
-            ->with('success', __('messages.recipe_updated_success'));
-        }
-
-    /**
-     * Remove the specified resource from storage.
-     */
+    #[OA\Delete(
+        path: "/api/recipes/{id}",
+        operationId: "destroyRecipe",
+        tags: ["Recipes"],
+        summary: "Delete recipe",
+        security: [["bearerAuth" => []]],
+        parameters: [
+            new OA\Parameter(name: "id", in: "path", required: true, schema: new OA\Schema(type: "integer"))
+        ],
+        responses: [
+            new OA\Response(response: 204, description: "Recipe deleted"),
+            new OA\Response(response: 401, description: "Unauthenticated"),
+            new OA\Response(response: 404, description: "Recipe not found")
+        ]
+    )]
     public function destroy(Recipe $recipe)
     {
-        $this->authorizeRecipe($recipe);
-
-        if ($recipe->image) {
-            Storage::disk('public')->delete($recipe->image);
-        }
-
         $recipe->delete();
-        return redirect()
-            ->route('recipes.my-recipes')
-            ->with('success', __('messages.recipe_deleted_success'));
+        return response()->noContent();
     }
 }

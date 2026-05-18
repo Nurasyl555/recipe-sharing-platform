@@ -2,89 +2,63 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Resources\ApiResource;
 use App\Models\Favorite;
-use Illuminate\Support\Facades\Auth;
+use OpenApi\Attributes as OA;
 
-/**
- * @OA\Tag(name="Favorite", description="Favorite operations")
- */
 class FavoriteController extends Controller
 {
-    /**
-     * @OA\Post(
-     *     path="/api/favorites/{recipeId}",
-     *     summary="Add recipe to favorites",
-     *     tags={"Favorite"},
-     *     @OA\Parameter(
-     *         name="recipeId",
-     *         in="path",
-     *         required=true,
-     *         description="Recipe ID",
-     *         @OA\Schema(type="integer")
-     *     ),
-     *     @OA\Response(
-     *         response=200,
-     *         description="Added to favorites",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="success", type="boolean", example=true),
-     *             @OA\Property(property="data", type="null"),
-     *             @OA\Property(property="message", type="string", example="Added to favorites")
-     *         )
-     *     ),
-     *     @OA\Response(
-     *         response=401,
-     *         description="Unauthorized",
-     *         @OA\JsonContent(ref="#/components/schemas/ApiErrorResponse")
-     *     ),
-     *     security={{"bearerAuth":{}}}
-     * )
-     */
-    public function store($recipeId)
+    #[OA\Post(
+        path: "/api/favorites",
+        operationId: "storeFavorite",
+        tags: ["Favorites"],
+        summary: "Add recipe to favorites",
+        security: [["bearerAuth" => []]],
+        requestBody: new OA\RequestBody(
+            required: true,
+            content: new OA\JsonContent(
+                required: ["recipe_id"],
+                properties: [
+                    new OA\Property(property: "recipe_id", type: "integer")
+                ]
+            )
+        ),
+        responses: [
+            new OA\Response(response: 201, description: "Added to favorites"),
+            new OA\Response(response: 401, description: "Unauthenticated"),
+            new OA\Response(response: 422, description: "Validation error")
+        ]
+    )]
+    public function store()
     {
-        Favorite::firstOrCreate([
-            'user_id' => Auth::id(),
-            'recipe_id' => $recipeId,
+        $favorite = Favorite::create([
+            'user_id' => auth()->id(),
+            'recipe_id' => request()->input('recipe_id')
         ]);
-
-        return ApiResource::success(null, 'Added to favorites', 200);
+        
+        return response()->json($favorite, 201);
     }
 
-    /**
-     * @OA\Delete(
-     *     path="/api/favorites/{recipeId}",
-     *     summary="Remove recipe from favorites",
-     *     tags={"Favorite"},
-     *     @OA\Parameter(
-     *         name="recipeId",
-     *         in="path",
-     *         required=true,
-     *         description="Recipe ID",
-     *         @OA\Schema(type="integer")
-     *     ),
-     *     @OA\Response(
-     *         response=200,
-     *         description="Removed from favorites",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="success", type="boolean", example=true),
-     *             @OA\Property(property="data", type="null"),
-     *             @OA\Property(property="message", type="string", example="Removed from favorites")
-     *         )
-     *     ),
-     *     @OA\Response(
-     *         response=401,
-     *         description="Unauthorized",
-     *         @OA\JsonContent(ref="#/components/schemas/ApiErrorResponse")
-     *     ),
-     *     security={{"bearerAuth":{}}}
-     * )
-     */
-    public function destroy($recipeId)
+    #[OA\Delete(
+        path: "/api/favorites/{recipeId}",
+        operationId: "destroyFavorite",
+        tags: ["Favorites"],
+        summary: "Remove recipe from favorites",
+        security: [["bearerAuth" => []]],
+        parameters: [
+            new OA\Parameter(name: "recipeId", in: "path", required: true, schema: new OA\Schema(type: "integer"))
+        ],
+        responses: [
+            new OA\Response(response: 204, description: "Removed from favorites"),
+            new OA\Response(response: 401, description: "Unauthenticated"),
+            new OA\Response(response: 404, description: "Favorite not found")
+        ]
+    )]
+    public function destroy(int $recipeId)
     {
-        Favorite::where('user_id', Auth::id())
-            ->where('recipe_id', $recipeId)
+        Favorite::where('recipe_id', $recipeId)
+            ->where('user_id', auth()->id())
             ->delete();
-
-        return ApiResource::success(null, 'Removed from favorites', 200);
+        
+        return response()->noContent();
     }
 }
