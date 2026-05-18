@@ -38,5 +38,9 @@
   "Profile Information": "Информация профиля",
   "Update your account's profile information, email address, and avatar.": "Обновите информацию профиля вашего аккаунта, адрес электронной почты и аватар.",
   "Save": "Сохранить",
-  "Saved.": "Сохранено."
+  "Saved.": "Сохранено.",
+  "Favorites": "Избранное",
+  "Your favorite recipes collected here.": "Ваши любимые рецепты собраны здесь.",
+  "No favorite recipes yet": "У вас пока нет любимых рецептов",
+  "Explore recipes and add them to your favorites.": "Изучайте рецепты и добавляйте их в избранное."
 }

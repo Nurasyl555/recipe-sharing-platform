@@ -7,6 +7,16 @@ use Illuminate\Support\Facades\Auth;
 
 class FavoriteController extends Controller
 {
+    public function index()
+    {
+        $recipes = Auth::user()->favoriteRecipes()
+            ->with(['category', 'cuisine', 'user'])
+            ->latest()
+            ->paginate(10);
+
+        return view('recipes.favorites', compact('recipes'));
+    }
+
     public function store($recipeId)
     {
         Favorite::firstOrCreate([

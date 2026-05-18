@@ -20,6 +20,7 @@ return [
     'clear' => 'Clear',
     'no_recipes' => 'No recipes found',
     'my_recipes' => 'My Recipes',
+    'my_collection' => 'My Collection',
     'create_recipe' => 'Create Recipe',
     'admin_panel' => 'Admin Panel',
     'profile' => 'Profile',

@@ -33,9 +33,9 @@
                                     </div>
                                 @endif
                             </div>
-                            <label class="block">
+                            <label for="avatar" class="block">
                                 <span class="sr-only">Choose profile photo</span>
-                                <input type="file" name="avatar" accept="image/*"
+                                <input id="avatar" type="file" name="avatar" accept="image/*"
                                        class="block w-full text-sm text-gray-500
                                     file:mr-4 file:py-2 file:px-4
                                     file:rounded-full file:border-0

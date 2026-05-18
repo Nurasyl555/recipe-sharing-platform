@@ -38,5 +38,9 @@
   "Profile Information": "Профиль ақпараты",
   "Update your account's profile information, email address, and avatar.": "Аккаунтыңыздың профиль ақпаратын, электрондық пошта мекенжайын және аватарын жаңартыңыз.",
   "Save": "Сақтау",
-  "Saved.": "Сақталды."
+  "Saved.": "Сақталды.",
+  "Favorites": "Таңдаулылар",
+  "Your favorite recipes collected here.": "Сіздің таңдаулы рецепттеріңіз осында жиналған.",
+  "No favorite recipes yet": "Әзірге таңдаулы рецепттер жоқ",
+  "Explore recipes and add them to your favorites.": "Рецепттерді зерттеп, оларды таңдаулыларға қосыңыз."
 }

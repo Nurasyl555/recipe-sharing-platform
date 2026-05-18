@@ -1,4 +1,4 @@
-<nav x-data="{ open: false }" class="bg-white border-b border-gray-100">
+﻿<nav x-data="{ open: false }" class="bg-white border-b border-gray-100">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between h-16">
             <div class="flex">
@@ -20,6 +20,10 @@
 
                         <x-nav-link :href="route('recipes.create')" :active="request()->routeIs('recipes.create')">
                             {{ __('Create Recipe') }}
+                        </x-nav-link>
+
+                        <x-nav-link :href="route('favorites.index')" :active="request()->routeIs('favorites.index')">
+                            {{ __('Favorites') }}
                         </x-nav-link>
 
                         @if(Auth::user()->isAdmin())
@@ -108,6 +112,10 @@
                     {{ __('Create Recipe') }}
                 </x-responsive-nav-link>
 
+                <x-responsive-nav-link :href="route('favorites.index')" :active="request()->routeIs('favorites.index')">
+                    {{ __('Favorites') }}
+                </x-responsive-nav-link>
+
                 @if(Auth::user()->isAdmin())
                     <x-responsive-nav-link :href="route('admin.dashboard')" :active="request()->routeIs('admin.dashboard')">
                         <span class="text-red-500 font-semibold">{{ __('Admin Panel') }}</span>
@@ -151,3 +159,6 @@
         @endauth
     </div>
 </nav>
+
+
+

@@ -20,6 +20,7 @@ return [
     'clear' => 'Сбросить',
     'no_recipes' => 'Рецепты не найдены',
     'my_recipes' => 'Мои рецепты',
+    'my_collection' => 'Моя коллекция',
     'create_recipe' => 'Создать рецепт',
     'admin_panel' => 'Панель администратора',
     'profile' => 'Профиль',

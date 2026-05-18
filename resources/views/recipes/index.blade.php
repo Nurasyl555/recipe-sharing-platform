@@ -12,15 +12,15 @@
             <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
                 <!-- Search -->
                 <div class="space-y-2">
-                    <label class="text-sm font-bold text-lime-800 ml-1">{{ __('messages.search') }}</label>
-                    <input type="text" name="search" value="{{ request('search') }}" placeholder="{{ __('messages.search_placeholder') }}"
+                    <label for="search" class="text-sm font-bold text-lime-800 ml-1">{{ __('messages.search') }}</label>
+                    <input type="text" name="search" id="search" value="{{ request('search') }}" placeholder="{{ __('messages.search_placeholder') }}"
                            class="w-full px-4 py-3 border border-lime-200 rounded-2xl focus:ring-2 focus:ring-lime-500 focus:border-lime-500 transition duration-150">
                 </div>
 
                 <!-- Category -->
                 <div class="space-y-2">
-                    <label class="text-sm font-bold text-lime-800 ml-1">{{ __('messages.category') }}</label>
-                    <select name="category" class="w-full px-4 py-3 border border-lime-200 rounded-2xl focus:ring-2 focus:ring-lime-500 focus:border-lime-500 transition duration-150">
+                    <label for="category" class="text-sm font-bold text-lime-800 ml-1">{{ __('messages.category') }}</label>
+                    <select name="category" id="category" class="w-full px-4 py-3 border border-lime-200 rounded-2xl focus:ring-2 focus:ring-lime-500 focus:border-lime-500 transition duration-150">
                         <option value="">{{ __('messages.all_categories') }}</option>
                         @foreach($categories as $category)
                             <option value="{{ $category->id }}" @selected(request('category') == $category->id)>{{ $category->name }}</option>
@@ -30,8 +30,8 @@
 
                 <!-- Cuisine -->
                 <div class="space-y-2">
-                    <label class="text-sm font-bold text-lime-800 ml-1">{{ __('messages.cuisine') }}</label>
-                    <select name="cuisine" class="w-full px-4 py-3 border border-lime-200 rounded-2xl focus:ring-2 focus:ring-lime-500 focus:border-lime-500 transition duration-150">
+                    <label for="cuisine" class="text-sm font-bold text-lime-800 ml-1">{{ __('messages.cuisine') }}</label>
+                    <select name="cuisine" id="cuisine" class="w-full px-4 py-3 border border-lime-200 rounded-2xl focus:ring-2 focus:ring-lime-500 focus:border-lime-500 transition duration-150">
                         <option value="">{{ __('messages.all_cuisines') }}</option>
                         @foreach($cuisines as $cuisine)
                             <option value="{{ $cuisine->id }}" @selected(request('cuisine') == $cuisine->id)>{{ $cuisine->name }}</option>
@@ -41,8 +41,8 @@
 
                 <!-- Difficulty -->
                 <div class="space-y-2">
-                    <label class="text-sm font-bold text-lime-800 ml-1">{{ __('messages.difficulty') }}</label>
-                    <select name="difficulty" class="w-full px-4 py-3 border border-lime-200 rounded-2xl focus:ring-2 focus:ring-lime-500 focus:border-lime-500 transition duration-150">
+                    <label for="difficulty" class="text-sm font-bold text-lime-800 ml-1">{{ __('messages.difficulty') }}</label>
+                    <select name="difficulty" id="difficulty" class="w-full px-4 py-3 border border-lime-200 rounded-2xl focus:ring-2 focus:ring-lime-500 focus:border-lime-500 transition duration-150">
                         <option value="">{{ __('messages.any_difficulty') }}</option>
                         <option value="easy" @selected(request('difficulty') == 'easy')>{{ __('messages.easy') }}</option>
                         <option value="medium" @selected(request('difficulty') == 'medium')>{{ __('messages.medium') }}</option>
@@ -52,8 +52,8 @@
 
                 <!-- Max Time -->
                 <div class="space-y-2">
-                    <label class="text-sm font-bold text-lime-800 ml-1">{{ __('messages.max_time') }}</label>
-                    <input type="number" name="max_time" value="{{ request('max_time') }}" placeholder="{{ __('messages.min') }}" min="1"
+                    <label for="max_time" class="text-sm font-bold text-lime-800 ml-1">{{ __('messages.max_time') }}</label>
+                    <input type="number" name="max_time" id="max_time" value="{{ request('max_time') }}" placeholder="{{ __('messages.min') }}" min="1"
                            class="w-full px-4 py-3 border border-lime-200 rounded-2xl focus:ring-2 focus:ring-lime-500 focus:border-lime-500 transition duration-150">
                 </div>
 
