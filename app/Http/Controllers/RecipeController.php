@@ -104,9 +104,11 @@ class RecipeController extends Controller
 
         // Save ingredients via pivot
         $this->syncIngredients($recipe, $request->ingredients, $request->amounts);
-        return redirect()->route('recipes.show', $recipe)
-            ->with('success', 'Recipe created successfully. Waiting for approval.');
+        return redirect()
+            ->route('recipes.my-recipes')
+            ->with('success', __('messages.recipe_created_success'));
     }
+
     /**
      * Display the specified resource.
      * GET /recipes/{recipe}
@@ -153,9 +155,11 @@ class RecipeController extends Controller
         // Обновить ингредиенты
         $this->syncIngredients($recipe, $request->ingredients, $request->amounts);
 
-        return redirect()->route('recipes.show', $recipe)
-            ->with('success', 'Recipe updated successfully!');
-    }
+        return redirect()
+            ->route('recipes.show', $recipe)
+            ->with('success', __('messages.recipe_updated_success'));
+        }
+
 
 
     /**
@@ -170,9 +174,10 @@ class RecipeController extends Controller
         }
 
         $recipe->delete();
+return redirect()
+    ->route('recipes.my-recipes')
+    ->with('success', __('messages.recipe_deleted_success'));
+}
 
-        return redirect()->route('recipes.index')
-            ->with('success', 'Recipe deleted.');
-    }
 
 }

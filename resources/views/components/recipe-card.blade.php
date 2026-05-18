@@ -36,7 +36,7 @@
                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                 </svg>
-                {{ $recipe->prep_time + $recipe->cook_time }} min
+                {{ $recipe->prep_time + $recipe->cook_time }} {{ __('messages.min') }}
             </div>
         </div>
     </div>
@@ -70,7 +70,7 @@
                     @endif
                 </div>
                 <div>
-                    <p class="text-xs text-gray-400 font-medium">By</p>
+                    <p class="text-xs text-gray-400 font-medium">{{ __('messages.by') }}</p>
                     <p class="text-sm font-bold text-gray-800">{{ $recipe->user->name }}</p>
                 </div>
             </div>
