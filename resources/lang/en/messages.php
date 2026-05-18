@@ -117,4 +117,5 @@ return [
     'category_exists' => 'Selected category does not exist.',
     'cuisine_exists' => 'Selected cuisine does not exist.',
     'image_max' => 'Image must be less than 2MB.',
+    'image_upload_error' => 'Error uploading image. Check file size and format.',
 ];

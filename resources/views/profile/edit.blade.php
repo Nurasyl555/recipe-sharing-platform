@@ -29,7 +29,7 @@
                                     <img class="h-16 w-16 object-cover rounded-full shadow" src="{{ asset('storage/' . auth()->user()->avatar) }}" alt="Current avatar">
                                 @else
                                     <div class="h-16 w-16 bg-orange-100 text-orange-500 flex items-center justify-center rounded-full shadow text-xl font-bold">
-                                        {{ substr(auth()->user()->name, 0, 1) }}
+                                        {{ mb_substr(auth()->user()->name, 0, 1) }}
                                     </div>
                                 @endif
                             </div>

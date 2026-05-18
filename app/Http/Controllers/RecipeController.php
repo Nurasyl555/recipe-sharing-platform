@@ -112,7 +112,7 @@ class RecipeController extends Controller
             ->route('recipes.my-recipes')
             ->with('success', __('messages.recipe_created_success'));
     }
-     
+
     /**
      * Display the specified resource.
      * GET /recipes/{recipe}
@@ -144,6 +144,13 @@ class RecipeController extends Controller
      */
     public function update(UpdateRecipeRequest $request, Recipe $recipe)
     {
+        // Detect PHP upload errors (e.g., file exceeds PHP's upload_max_filesize or post_max_size)
+        if (isset($_FILES['image']) && $_FILES['image']['error'] !== UPLOAD_ERR_NO_FILE && $_FILES['image']['error'] !== UPLOAD_ERR_OK) {
+            return back()
+                ->withErrors(['image' => __('messages.image_upload_error')])
+                ->withInput();
+        }
+
         $data = $request->validated();
 
         // Заменить фото если загрузили новое
@@ -152,6 +159,10 @@ class RecipeController extends Controller
                 Storage::disk('public')->delete($recipe->image);
             }
             $data['image'] = $request->file('image')->store('recipes', 'public');
+        } else {
+            // Если новое фото не загружено, убираем поле 'image' из данных,
+            // чтобы не затереть существующее значение в базе данных.
+            unset($data['image']);
         }
 
         $recipe->update($data);
@@ -162,7 +173,7 @@ class RecipeController extends Controller
         return redirect()
             ->route('recipes.show', $recipe)
             ->with('success', __('messages.recipe_updated_success'));
-        }
+    }
 
 
 

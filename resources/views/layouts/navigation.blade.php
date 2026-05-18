@@ -41,7 +41,7 @@
                                         <img class="h-8 w-8 rounded-full object-cover border-2 border-lime-200" src="{{ asset('storage/' . Auth::user()->avatar) }}" alt="{{ Auth::user()->name }}">
                                     @else
                                         <div class="h-8 w-8 rounded-full bg-lime-100 text-lime-600 flex items-center justify-center font-bold border-2 border-lime-200">
-                                            {{ substr(Auth::user()->name, 0, 1) }}
+                                            {{ mb_substr(Auth::user()->name, 0, 1) }}
                                         </div>
                                     @endif
                                     <span>{{ Auth::user()->name }}</span>
@@ -123,7 +123,7 @@
                         <img class="h-10 w-10 rounded-full object-cover border-2 border-lime-200" src="{{ asset('storage/' . Auth::user()->avatar) }}" alt="{{ Auth::user()->name }}">
                     @else
                         <div class="h-10 w-10 rounded-full bg-lime-100 text-lime-600 flex items-center justify-center font-bold border-2 border-lime-200">
-                            {{ substr(Auth::user()->name, 0, 1) }}
+                            {{ mb_substr(Auth::user()->name, 0, 1) }}
                         </div>
                     @endif
                     <div>

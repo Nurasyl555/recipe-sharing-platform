@@ -33,7 +33,7 @@
                             <img src="{{ asset('storage/' . $recipe->user->avatar) }}" class="w-10 h-10 rounded-full border-2 border-white">
                         @else
                             <div class="w-10 h-10 rounded-full bg-lime-500 flex items-center justify-center text-white font-bold border-2 border-white">
-                                {{ substr($recipe->user->name, 0, 1) }}
+                                {{ mb_substr($recipe->user->name, 0, 1) }}
                             </div>
                         @endif
                         <span class="text-white font-medium">{{ __('messages.by') }} {{ $recipe->user->name }}</span>
@@ -148,72 +148,132 @@
                                 </form>
                             @endif
 
-                            <div x-data="{ isFavorite: {{ auth()->user()->favorites()->where('recipe_id', $recipe->id)->exists() ? 'true' : 'false' }} }">
-                                <form action="{{ route('favorites.store', $recipe->id) }}" method="POST" x-show="!isFavorite">
-                                    @csrf
-                                    <button type="submit" class="w-full bg-orange-500 text-white px-6 py-4 rounded-2xl font-bold hover:bg-orange-600 shadow-lg shadow-orange-500/30 transition-all flex items-center justify-center gap-2">
-                                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path></svg>
-                                        {{ __('messages.save_to_collection') }}
-                                    </button>
-                                </form>
-                                <form action="{{ route('favorites.destroy', $recipe->id) }}" method="POST" x-show="isFavorite">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" class="w-full bg-white/10 text-white/90 px-6 py-4 rounded-2xl font-bold hover:bg-white/20 transition-all flex items-center justify-center gap-2">
-                                        ❤️ {{ __('messages.in_your_collection') }}
-                                    </button>
-                                </form>
+                            <div x-data="{
+                                isFavorite: {{ auth()->user()->favorites()->where('recipe_id', $recipe->id)->exists() ? 'true' : 'false' }},
+                                loading: false,
+                                async toggleFavorite() {
+                                    if (this.loading) return;
+                                    this.loading = true;
+                                    try {
+                                        if (this.isFavorite) {
+                                            await axios.delete('{{ route('favorites.destroy', $recipe->id) }}');
+                                            this.isFavorite = false;
+                                        } else {
+                                            await axios.post('{{ route('favorites.store', $recipe->id) }}');
+                                            this.isFavorite = true;
+                                        }
+                                    } catch (error) {
+                                        console.error(error);
+                                    } finally {
+                                        this.loading = false;
+                                    }
+                                }
+                            }">
+                                <button @click="toggleFavorite()"
+                                        :disabled="loading"
+                                        class="w-full px-6 py-4 rounded-2xl font-bold transition-all flex items-center justify-center gap-2"
+                                        :class="isFavorite ? 'bg-white/10 text-white/90 hover:bg-white/20' : 'bg-orange-500 text-white hover:bg-orange-600 shadow-lg shadow-orange-500/30'">
+                                    <template x-if="!isFavorite">
+                                        <div class="flex items-center gap-2">
+                                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path></svg>
+                                            <span>{{ __('messages.save_to_collection') }}</span>
+                                        </div>
+                                    </template>
+                                    <template x-if="isFavorite">
+                                        <span>❤️ {{ __('messages.in_your_collection') }}</span>
+                                    </template>
+                                </button>
                             </div>
                         </div>
                     </div>
                 @endauth
 
                 <!-- Review Section in Sidebar -->
-                <div class="bg-white rounded-[2.5rem] p-8 shadow-sm border border-gray-100">
+                <div class="bg-white rounded-[2.5rem] p-8 shadow-sm border border-gray-100"
+                     x-data="{
+                        score: 0,
+                        comment: '',
+                        loading: false,
+                        reviews: {{ $recipe->ratings->sortByDesc('created_at')->take(5)->map(fn($r) => [
+                            'id' => $r->id,
+                            'userName' => $r->user->name,
+                            'score' => $r->score,
+                            'comment' => $r->comment,
+                            'initial' => mb_substr($r->user->name, 0, 1)
+                        ])->toJson() }},
+                        async submitReview() {
+                            if (this.loading || !this.score) return;
+                            this.loading = true;
+                            try {
+                                const response = await axios.post('{{ route('ratings.store') }}', {
+                                    recipe_id: {{ $recipe->id }},
+                                    score: this.score,
+                                    comment: this.comment
+                                });
+
+                                const newReview = {
+                                    id: response.data.rating.id,
+                                    userName: '{{ auth()->user()->name ?? "" }}',
+                                    score: parseInt(this.score),
+                                    comment: this.comment,
+                                    initial: '{{ auth()->check() ? mb_substr(auth()->user()->name, 0, 1) : "" }}'
+                                };
+
+                                const index = this.reviews.findIndex(r => r.userName === newReview.userName);
+                                if (index !== -1) {
+                                    this.reviews[index] = newReview;
+                                } else {
+                                    this.reviews.unshift(newReview);
+                                }
+
+                                this.comment = '';
+                                this.score = 0;
+                            } catch (error) {
+                                console.error(error);
+                                alert(error.response?.data?.message || 'Error saving review');
+                            } finally {
+                                this.loading = false;
+                            }
+                        }
+                     }">
                     <h3 class="text-2xl font-bold text-gray-900 mb-6">{{ __('messages.reviews') }}</h3>
 
                     @auth
-                        <form action="{{ route('ratings.store') }}" method="POST" class="mb-10">
-                            @csrf
-                            <input type="hidden" name="recipe_id" value="{{ $recipe->id }}">
-
+                        <div class="mb-10">
                             <div class="mb-6">
-                                <div class="flex gap-2 flex-row-reverse justify-end" style="width: max-content;">
-                                    @for($i = 5; $i >= 1; $i--)
-                                        <input type="radio" id="star{{ $i }}" name="score" value="{{ $i }}" class="peer hidden" required />
-                                        <label for="star{{ $i }}" class="cursor-pointer text-3xl text-gray-200 peer-hover:text-yellow-400 peer-checked:text-yellow-400 transition-colors">⭐</label>
+                                <div class="flex gap-2">
+                                    @for($i = 1; $i <= 5; $i++)
+                                        <button type="button" @click="score = {{ $i }}" class="text-3xl transition-colors" :class="score >= {{ $i }} ? 'text-yellow-400' : 'text-gray-200'">⭐</button>
                                     @endfor
                                 </div>
                             </div>
 
                             <div class="mb-4">
-                                <textarea name="comment" placeholder="{{ __('messages.tell_us_what_you_think') }}" required
+                                <textarea x-model="comment" placeholder="{{ __('messages.tell_us_what_you_think') }}"
                                           class="w-full px-5 py-4 bg-gray-50 border-none rounded-2xl focus:ring-2 focus:ring-lime-500 min-h-[120px]"></textarea>
                             </div>
 
-                            <button type="submit" class="w-full bg-gray-900 text-white py-4 rounded-2xl font-bold hover:bg-lime-500 transition-all">
-                                {{ __('messages.post_review') }}
+                            <button @click="submitReview()" :disabled="loading" class="w-full bg-gray-900 text-white py-4 rounded-2xl font-bold hover:bg-lime-500 transition-all disabled:opacity-50">
+                                <span x-show="!loading">{{ __('messages.post_review') }}</span>
+                                <span x-show="loading">...</span>
                             </button>
-                        </form>
+                        </div>
                     @endauth
 
                     <div class="space-y-6">
-                        @forelse($recipe->ratings->sortByDesc('created_at')->take(5) as $rating)
+                        <template x-for="review in reviews" :key="review.id">
                             <div class="pb-6 border-b border-gray-50 last:border-0 last:pb-0">
                                 <div class="flex items-center gap-3 mb-2">
-                                    <div class="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-xs font-bold text-gray-500">
-                                        {{ substr($rating->user->name, 0, 1) }}
-                                    </div>
-                                    <span class="font-bold text-gray-800 text-sm">{{ $rating->user->name }}</span>
-                                    <span class="text-yellow-400 text-xs ml-auto">{{ str_repeat('⭐', $rating->score) }}</span>
+                                    <div class="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-xs font-bold text-gray-500" x-text="review.initial"></div>
+                                    <span class="font-bold text-gray-800 text-sm" x-text="review.userName"></span>
+                                    <span class="text-yellow-400 text-xs ml-auto" x-text="'⭐'.repeat(review.score)"></span>
                                 </div>
-                                <p class="text-gray-600 text-sm leading-relaxed">
-                                    {{ $rating->comment }}
-                                </p>
+                                <p class="text-gray-600 text-sm leading-relaxed" x-text="review.comment"></p>
                             </div>
-                        @empty
+                        </template>
+                        <template x-if="reviews.length === 0">
                             <p class="text-gray-400 text-center italic">{{ __('messages.no_reviews_yet') }}</p>
-                        @endforelse
+                        </template>
                     </div>
                 </div>
             </div>
