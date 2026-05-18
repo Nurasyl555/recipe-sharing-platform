@@ -40,42 +40,36 @@ class RecipeController extends Controller
     //-------------------------------
 
     // GET /recipes — a list of all published recipes
-    public function index()
+    public function index(\Illuminate\Http\Request $request)
     {
-        $query = Recipe::with(['user', 'category', 'cuisine'])
-            ->where('status', 'published');
+        $recipes = Recipe::with(['user', 'category', 'cuisine'])
+            ->where('status', 'published')
+            ->when($request->search, function ($query, $search) {
+                $query->where(function($q) use ($search) {
+                    $q->where('title', 'like', "%{$search}%")
+                      ->orWhere('description', 'like', "%{$search}%");
+                });
+            })
+            ->when($request->cuisine, function ($query, $cuisineId) {
+                $query->where('cuisine_id', $cuisineId);
+            })
+            ->when($request->category, function ($query, $categoryId) {
+                $query->where('category_id', $categoryId);
+            })
+            ->when($request->difficulty, function ($query, $difficulty) {
+                $query->where('difficulty', $difficulty);
+            })
+            ->when($request->max_time, function ($query, $maxTime) {
+                $query->whereRaw('(prep_time + cook_time) <= ?', [$maxTime]);
+            })
+            ->latest()
+            ->paginate(12)
+            ->withQueryString();
 
-        if (request('search')) {
-            $query->where('title', 'like', '%' . request('search') . '%');
-        }
+        $cuisines = Cuisine::all();
+        $categories = Category::all();
 
-        if (request('cuisine_id')) {
-            $query->where('cuisine_id', request('cuisine_id'));
-        }
-
-        if (request('prep_time')) {
-            $query->where('prep_time', '<=', request('prep_time'));
-        }
-
-        if (request('ingredient')) {
-            $query->whereHas('ingredients', function ($q) {
-                $q->where('name', 'like', '%' . request('ingredient') . '%');
-            });
-        }
-
-        if (request('sort') === 'trending') {
-            $query->withAvg('ratings', 'score')
-                ->withCount('ratings')
-                ->orderByDesc('ratings_avg_rating')
-                ->orderByDesc('ratings_count');
-        } else {
-            // default sorting
-            $query->latest();
-        }
-
-        $recipes = $query->paginate(12)->withQueryString();
-
-        return view('recipes.index', compact('recipes'));
+        return view('recipes.index', compact('recipes', 'cuisines', 'categories'));
     }
 
     /**

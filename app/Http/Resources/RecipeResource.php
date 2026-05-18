@@ -15,7 +15,7 @@ class RecipeResource extends JsonResource
             'cuisine' => $this->cuisine,
             'prep_time' => $this->prep_time,
             'user' => new UserResource($this->whenLoaded('user')),
-            'avg_rating' => $this->whenLoaded('ratings') ? $this->ratings->avg('score') : null,
+            'avg_rating' => $this->whenLoaded('ratings') ? $this->ratings->avg('rating') : null,
             'ratings_count' => $this->whenLoaded('ratings') ? $this->ratings->count() : 0,
             'created_at' => $this->created_at,
         ];
