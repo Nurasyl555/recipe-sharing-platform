@@ -1,49 +1,35 @@
 <?php
 
-use App\Http\Controllers\AuthController;
-use App\Http\Controllers\RatingController;
-use App\Http\Controllers\FavoriteController;
+use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\RecipeController;
+use App\Http\Controllers\Api\RatingController;
+use App\Http\Controllers\Api\FavoriteController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Resources\ApiResource;
 use App\Http\Resources\UserResource;
 
-/**
- * @OA\Get(
- *     path="/api/health",
- *     tags={"Health"},
- *     summary="Health check",
- *     @OA\Response(response=200, description="API is running")
- * )
- */
-Route::get('/health', function () {
-    return ApiResource::success(['status' => 'ok'], 'API is healthy');
-});
+Route::get('/health', fn() => ApiResource::success(['status' => 'ok'], 'API is healthy'));
 
 Route::post('/auth/register', [AuthController::class, 'register']);
 Route::post('/auth/login', [AuthController::class, 'login']);
 
+Route::get('/recipes', [RecipeController::class, 'index']);
+Route::get('/recipes/{id}', [RecipeController::class, 'show']);
+
 Route::middleware('auth:sanctum')->group(function () {
-    /**
-     * @OA\Get(
-     *     path="/api/user",
-     *     tags={"User"},
-     *     summary="Get current user (auth)",
-     *     security={{"bearerAuth":{}}},
-     *     @OA\Response(response=200, description="User data", @OA\JsonContent(ref="#/components/schemas/User")),
-     *     @OA\Response(response=401, description="Unauthorized")
-     * )
-     */
-    Route::get('/user', function (Request $request) {
-        return ApiResource::success(
-            new UserResource($request->user()),
-            'Current user loaded'
-        );
-    });
+    Route::get('/user', fn(Request $request) => ApiResource::success(
+        new UserResource($request->user()),
+        'Current user loaded'
+    ));
 
-    Route::post('/ratings', [RatingController::class, 'store'])->name('api.ratings.store');
-    Route::delete('/ratings/{recipeId}', [RatingController::class, 'destroy'])->name('api.ratings.destroy');
+    Route::post('/recipes', [RecipeController::class, 'store']);
+    Route::put('/recipes/{id}', [RecipeController::class, 'update']);
+    Route::delete('/recipes/{id}', [RecipeController::class, 'destroy']);
 
-    Route::post('/favorites/{recipeId}', [FavoriteController::class, 'store'])->name('api.favorites.store');
-    Route::delete('/favorites/{recipeId}', [FavoriteController::class, 'destroy'])->name('api.favorites.destroy');
+    Route::post('/ratings', [RatingController::class, 'store']);
+    Route::delete('/ratings/{recipeId}', [RatingController::class, 'destroy']);
+
+    Route::post('/favorites', [FavoriteController::class, 'store']);
+    Route::delete('/favorites/{recipeId}', [FavoriteController::class, 'destroy']);
 });

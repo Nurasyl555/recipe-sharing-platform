@@ -71,13 +71,13 @@ class RatingTest extends TestCase
             'comment' => 'Delicious!',
         ]);
 
-        $response->assertStatus(200)
+        $response->assertStatus(201)
                  ->assertJsonStructure([
                      'success',
-                     'data' => ['id', 'rating', 'comment', 'user' => ['id', 'name', 'email']],
+                     'data' => ['id', 'rating', 'comment'],
                      'message'
                  ])
-                 ->assertJson(['success' => true, 'message' => 'Rating saved']);
+                 ->assertJson(['success' => true, 'message' => 'Rating created successfully']);
 
         $this->assertDatabaseHas('ratings', [
             'user_id' => $user->id,
@@ -131,7 +131,7 @@ class RatingTest extends TestCase
 
         $response->assertStatus(200)
                  ->assertJsonStructure(['success', 'data', 'message'])
-                 ->assertJson(['success' => true, 'message' => 'Rating removed']);
+                 ->assertJson(['success' => true, 'message' => 'Rating deleted successfully']);
 
         $this->assertDatabaseMissing('ratings', [
             'user_id' => $user->id,
@@ -139,31 +139,49 @@ class RatingTest extends TestCase
         ]);
     }
 
-    public function test_user_can_update_their_rating()
+    public function test_user_cannot_delete_other_users_rating()
+    {
+        $user1 = User::factory()->create();
+        $user2 = User::factory()->create();
+        $recipe = Recipe::factory()->create();
+        Rating::factory()->create([
+            'user_id' => $user1->id,
+            'recipe_id' => $recipe->id,
+            'rating' => 5,
+        ]);
+
+        $this->actingAs($user2, 'sanctum');
+        $response = $this->deleteJson("/api/ratings/{$recipe->id}");
+
+        $response->assertStatus(404)
+                 ->assertJson(['success' => false]);
+
+        // Rating user1 должен остаться
+        $this->assertDatabaseHas('ratings', [
+            'user_id' => $user1->id,
+            'recipe_id' => $recipe->id,
+        ]);
+    }
+
+    public function test_user_cannot_rate_same_recipe_twice()
     {
         $user = User::factory()->create();
         $recipe = Recipe::factory()->create();
-        Rating::factory()->create([
-            'user_id' => $user->id,
+        $this->actingAs($user, 'sanctum');
+
+        // Первый рейтинг - успех
+        $this->postJson('/api/ratings', [
+            'recipe_id' => $recipe->id,
+            'rating' => 5,
+        ]);
+
+        // Второй рейтинг - ошибка (unique constraint)
+        $response = $this->postJson('/api/ratings', [
             'recipe_id' => $recipe->id,
             'rating' => 3,
         ]);
 
-        $this->actingAs($user, 'sanctum');
-        $response = $this->postJson('/api/ratings', [
-            'recipe_id' => $recipe->id,
-            'rating' => 5,
-            'comment' => 'Updated comment',
-        ]);
-
-        $response->assertStatus(200)
-                 ->assertJson(['success' => true]);
-
-        $this->assertDatabaseHas('ratings', [
-            'user_id' => $user->id,
-            'recipe_id' => $recipe->id,
-            'rating' => 5,
-            'comment' => 'Updated comment',
-        ]);
+        $response->assertStatus(422)
+                 ->assertJson(['success' => false]);
     }
 }

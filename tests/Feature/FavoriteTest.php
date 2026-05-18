@@ -11,7 +11,9 @@ class FavoriteTest extends TestCase
     public function test_guest_cannot_add_favorite()
     {
         $recipe = Recipe::factory()->create();
-        $response = $this->postJson("/api/favorites/{$recipe->id}");
+        $response = $this->postJson('/api/favorites', [
+            'recipe_id' => $recipe->id,
+        ]);
         $response->assertStatus(401);
     }
 
@@ -21,11 +23,13 @@ class FavoriteTest extends TestCase
         $recipe = Recipe::factory()->create();
         $this->actingAs($user, 'sanctum');
 
-        $response = $this->postJson("/api/favorites/{$recipe->id}");
+        $response = $this->postJson('/api/favorites', [
+            'recipe_id' => $recipe->id,
+        ]);
 
-        $response->assertStatus(200)
+        $response->assertStatus(201)
                  ->assertJsonStructure(['success', 'data', 'message'])
-                 ->assertJson(['success' => true, 'message' => 'Added to favorites']);
+                 ->assertJson(['success' => true, 'message' => 'Recipe added to favorites successfully']);
 
         $this->assertDatabaseHas('favorites', [
             'user_id' => $user->id,
@@ -37,14 +41,19 @@ class FavoriteTest extends TestCase
     {
         $user = User::factory()->create();
         $recipe = Recipe::factory()->create();
-        $user->favorites()->attach($recipe->id);
+        
+        // Создаём избранное правильно
+        \App\Models\Favorite::create([
+            'user_id' => $user->id,
+            'recipe_id' => $recipe->id,
+        ]);
 
         $this->actingAs($user, 'sanctum');
         $response = $this->deleteJson("/api/favorites/{$recipe->id}");
 
         $response->assertStatus(200)
                  ->assertJsonStructure(['success', 'data', 'message'])
-                 ->assertJson(['success' => true, 'message' => 'Removed from favorites']);
+                 ->assertJson(['success' => true, 'message' => 'Recipe removed from favorites successfully']);
 
         $this->assertDatabaseMissing('favorites', [
             'user_id' => $user->id,
@@ -57,15 +66,53 @@ class FavoriteTest extends TestCase
         $user1 = User::factory()->create();
         $user2 = User::factory()->create();
         $recipe = Recipe::factory()->create();
-        $user1->favorites()->attach($recipe->id);
+        
+        \App\Models\Favorite::create([
+            'user_id' => $user1->id,
+            'recipe_id' => $recipe->id,
+        ]);
 
         $this->actingAs($user2, 'sanctum');
-        $this->deleteJson("/api/favorites/{$recipe->id}");
+        $response = $this->deleteJson("/api/favorites/{$recipe->id}");
+
+        $response->assertStatus(404)
+                 ->assertJson(['success' => false]);
 
         // Favorite user1 должен остаться
         $this->assertDatabaseHas('favorites', [
             'user_id' => $user1->id,
             'recipe_id' => $recipe->id,
         ]);
+    }
+
+    public function test_favorite_validation_fails_with_nonexistent_recipe()
+    {
+        $user = User::factory()->create();
+        $this->actingAs($user, 'sanctum');
+
+        $response = $this->postJson('/api/favorites', [
+            'recipe_id' => 999,
+        ]);
+
+        $response->assertStatus(422)
+                 ->assertJson(['success' => false]);
+    }
+
+    public function test_duplicate_favorite_is_not_created()
+    {
+        $user = User::factory()->create();
+        $recipe = Recipe::factory()->create();
+        $this->actingAs($user, 'sanctum');
+
+        // Первый раз добавляем
+        $this->postJson('/api/favorites', ['recipe_id' => $recipe->id]);
+        
+        // Второй раз добавляем же рецепт
+        $response = $this->postJson('/api/favorites', ['recipe_id' => $recipe->id]);
+
+        $response->assertStatus(201);
+        
+        // Но в БД только одна запись
+        $this->assertEquals(1, \App\Models\Favorite::where('user_id', $user->id)->count());
     }
 }

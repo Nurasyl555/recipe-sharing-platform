@@ -13,7 +13,6 @@ class AuthTest extends TestCase
             'name' => 'John Doe',
             'email' => 'john@example.com',
             'password' => 'password123',
-            'password_confirmation' => 'password123',
         ]);
 
         $response->assertStatus(201);
@@ -21,6 +20,10 @@ class AuthTest extends TestCase
             'success',
             'data' => ['id', 'name', 'email'],
             'message',
+        ]);
+        $response->assertJson([
+            'success' => true,
+            'message' => 'User registered successfully'
         ]);
 
         $this->assertDatabaseHas('users', [
@@ -42,8 +45,12 @@ class AuthTest extends TestCase
         $response->assertStatus(200);
         $response->assertJsonStructure([
             'success',
-            'data' => ['token'],
+            'data' => ['token', 'user' => ['id', 'name', 'email']],
             'message',
+        ]);
+        $response->assertJson([
+            'success' => true,
+            'message' => 'Login successful'
         ]);
     }
 
@@ -61,6 +68,7 @@ class AuthTest extends TestCase
         $response->assertStatus(401);
         $response->assertJson([
             'success' => false,
+            'message' => 'Invalid credentials'
         ]);
     }
 }
