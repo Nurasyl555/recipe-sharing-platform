@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Support\Str;
+use App\Notifications\RecipeCreatedNotification;
 
 class RecipeController extends Controller
 {
@@ -104,11 +105,14 @@ class RecipeController extends Controller
 
         // Save ingredients via pivot
         $this->syncIngredients($recipe, $request->ingredients, $request->amounts);
+        $request->user()->notify(
+    new RecipeCreatedNotification($recipe->title)
+);
         return redirect()
             ->route('recipes.my-recipes')
             ->with('success', __('messages.recipe_created_success'));
     }
-
+     
     /**
      * Display the specified resource.
      * GET /recipes/{recipe}
