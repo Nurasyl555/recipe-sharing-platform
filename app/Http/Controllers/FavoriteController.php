@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\ApiResource;
 use App\Models\Favorite;
 use Illuminate\Support\Facades\Auth;
 
@@ -14,9 +15,7 @@ class FavoriteController extends Controller
             'recipe_id' => $recipeId,
         ]);
 
-        return response()->json([
-            'message' => 'Added to favorites'
-        ]);
+        return ApiResource::success(null, 'Added to favorites', 200);
     }
 
     public function destroy($recipeId)
@@ -25,8 +24,6 @@ class FavoriteController extends Controller
             ->where('recipe_id', $recipeId)
             ->delete();
 
-        return response()->json([
-            'message' => 'Removed from favorites'
-        ]);
+        return ApiResource::success(null, 'Removed from favorites', 200);
     }
 }

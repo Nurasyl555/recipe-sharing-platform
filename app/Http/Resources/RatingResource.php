@@ -14,7 +14,8 @@ class RatingResource extends JsonResource
             'comment' => $this->comment,
             'user' => new UserResource($this->whenLoaded('user')),
             'recipe_id' => $this->recipe_id,
-            'created_at' => $this->created_at,
+            'created_at' => optional($this->created_at)?->toISOString(),
+            'updated_at' => optional($this->updated_at)?->toISOString(),
         ];
     }
 }

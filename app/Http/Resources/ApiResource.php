@@ -3,6 +3,7 @@
 namespace App\Http\Resources;
 
 use Illuminate\Http\JsonResponse;
+
 /**
  * @OA\Schema(
  *     schema="ApiResponse",
@@ -10,10 +11,9 @@ use Illuminate\Http\JsonResponse;
  *     description="Standard API Response Wrapper"
  * )
  */
-
 class ApiResource
 {
-    public static function success($data, $message = 'Success', $code = 200): JsonResponse
+    public static function success($data = null, string $message = 'Success', int $code = 200): JsonResponse
     {
         return response()->json([
             'success' => true,
@@ -22,12 +22,18 @@ class ApiResource
         ], $code);
     }
 
-    public static function error($message = 'Error', $code = 400): JsonResponse
+    public static function error(string $message = 'Error', int $code = 400, $errors = null): JsonResponse
     {
-        return response()->json([
+        $response = [
             'success' => false,
             'data' => null,
             'message' => $message,
-        ], $code);
+        ];
+
+        if ($errors !== null) {
+            $response['errors'] = $errors;
+        }
+
+        return response()->json($response, $code);
     }
 }

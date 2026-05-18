@@ -2,33 +2,45 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\ApiResource;
+use App\Http\Resources\RatingResource;
 use App\Models\Rating;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\ValidationException;
 
 class RatingController extends Controller
 {
     public function store(Request $request)
     {
-        $request->validate([
-            'recipe_id' => 'required|exists:recipes,id',
-            'rating' => 'required|integer|min:1|max:5',
-        ]);
+        try {
+            $data = $request->validate([
+                'recipe_id' => ['required', 'exists:recipes,id'],
+                'rating' => ['required', 'integer', 'min:1', 'max:5'],
+                'comment' => ['nullable', 'string', 'max:1000'],
+            ]);
+        } catch (ValidationException $e) {
+            return ApiResource::error('Validation failed', 422, $e->errors());
+        }
 
         $rating = Rating::updateOrCreate(
             [
                 'user_id' => Auth::id(),
-                'recipe_id' => $request->recipe_id,
+                'recipe_id' => $data['recipe_id'],
             ],
             [
-                'rating' => $request->rating,
+                'rating' => $data['rating'],
+                'comment' => $data['comment'] ?? null,
             ]
         );
 
-        return response()->json([
-            'message' => 'Rating saved',
-            'rating' => $rating
-        ]);
+        $rating->load('user');
+
+        return ApiResource::success(
+            new RatingResource($rating),
+            'Rating saved',
+            200
+        );
     }
 
     public function destroy($recipeId)
@@ -37,8 +49,6 @@ class RatingController extends Controller
             ->where('recipe_id', $recipeId)
             ->delete();
 
-        return response()->json([
-            'message' => 'Rating removed'
-        ]);
+        return ApiResource::success(null, 'Rating removed', 200);
     }
 }
