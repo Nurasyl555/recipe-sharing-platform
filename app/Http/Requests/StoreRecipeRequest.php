@@ -35,11 +35,11 @@ class StoreRecipeRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'title.required'       => 'Recipe title is required.',
-            'ingredients.required' => 'Add at least one ingredient.',
-            'category_id.exists'   => 'Selected category does not exist.',
-            'cuisine_id.exists'    => 'Selected cuisine does not exist.',
-            'image.max'            => 'Image must be less than 2MB.',
+            'title.required'       => __('messages.title_required'),
+            'ingredients.required' => __('messages.ingredients_required'),
+            'category_id.exists'   => __('messages.category_exists'),
+            'cuisine_id.exists'    => __('messages.cuisine_exists'),
+            'image.max'            => __('messages.image_max'),
         ];
     }
 }

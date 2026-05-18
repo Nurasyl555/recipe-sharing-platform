@@ -10,6 +10,13 @@ Route::get('/', function () {
     return view('welcome');
 });
 
+Route::get('/lang/{locale}', function ($locale) {
+    if (in_array($locale, ['en', 'ru', 'kk'])) {
+        session(['locale' => $locale]);
+    }
+    return back();
+})->name('lang.switch');
+
 // ==========================================
 // 1. ЗАЩИЩЕННЫЕ РОУТЫ (Должны быть выше!)
 // ==========================================
@@ -26,7 +33,7 @@ Route::middleware('auth')->group(function () {
     Route::resource('recipes', RecipeController::class)->except(['index', 'show']);
 
     Route::get('/my-recipes', function () {
-        $recipes = auth()->user()->recipes()->latest()->paginate(10);
+        $recipes = auth()->user()->recipes()->with(['category', 'cuisine'])->latest()->paginate(10);
         return view('recipes.my-recipes', compact('recipes'));
     })->name('recipes.my-recipes');
 
@@ -53,8 +60,8 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
 
     // Главная панель
     Route::get('/dashboard', function () {
-        // Берем статистику и рецепты, ожидающие проверки
-        $pendingRecipes = \App\Models\Recipe::with('user')->where('status', 'draft')->latest()->get();
+    // Берем статистику и рецепты, ожидающие проверки (пагинация)
+    $pendingRecipes = \App\Models\Recipe::with('user')->where('status', 'draft')->latest()->paginate(10);
         $totalRecipes = \App\Models\Recipe::count();
         $totalUsers = \App\Models\User::count();
 
@@ -64,13 +71,13 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     // Одобрить рецепт
     Route::patch('/recipes/{recipe}/approve', function (\App\Models\Recipe $recipe) {
         $recipe->update(['status' => 'published']);
-        return back()->with('success', 'Recipe approved and published!');
+        return back()->with('success', __('messages.recipe_approved'));
     })->name('recipes.approve');
 
     // Отклонить рецепт
     Route::patch('/recipes/{recipe}/reject', function (\App\Models\Recipe $recipe) {
         $recipe->update(['status' => 'rejected']);
-        return back()->with('success', 'Recipe rejected.');
+        return back()->with('success', __('messages.recipe_rejected'));
     })->name('recipes.reject');
 });
 require __DIR__.'/auth.php';

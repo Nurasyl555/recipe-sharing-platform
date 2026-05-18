@@ -21,7 +21,7 @@
                             <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
                         </div>
                         <div class="ml-4">
-                            <h3 class="text-gray-500 text-sm font-medium">Total Recipes</h3>
+                            <h3 class="text-gray-500 text-sm font-medium">{{ __('messages.total_recipes') }}</h3>
                             <p class="text-2xl font-bold text-gray-800">{{ $totalRecipes }}</p>
                         </div>
                     </div>
@@ -33,7 +33,7 @@
                             <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
                         </div>
                         <div class="ml-4">
-                            <h3 class="text-gray-500 text-sm font-medium">Total Users</h3>
+                            <h3 class="text-gray-500 text-sm font-medium">{{ __('messages.total_users') }}</h3>
                             <p class="text-2xl font-bold text-gray-800">{{ $totalUsers }}</p>
                         </div>
                     </div>
@@ -45,7 +45,7 @@
                             <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                         </div>
                         <div class="ml-4">
-                            <h3 class="text-gray-500 text-sm font-medium">Pending Moderation</h3>
+                            <h3 class="text-gray-500 text-sm font-medium">{{ __('messages.pending_moderation') }}</h3>
                             <p class="text-2xl font-bold text-gray-800">{{ $pendingRecipes->count() }}</p>
                         </div>
                     </div>
@@ -54,22 +54,22 @@
 
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6 text-gray-900">
-                    <h3 class="text-lg font-bold text-gray-800 mb-4">Recipes Pending Approval</h3>
+                    <h3 class="text-lg font-bold text-gray-800 mb-4">{{ __('messages.recipes_pending_approval') }}</h3>
 
                     @if($pendingRecipes->isEmpty())
                         <div class="text-center py-8 text-gray-500">
                             <svg class="mx-auto h-12 w-12 text-gray-400 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                            <p>All caught up! No recipes waiting for moderation.</p>
+                            <p>{{ __('messages.no_pending_recipes') }}</p>
                         </div>
                     @else
                         <div class="overflow-x-auto">
                             <table class="w-full text-left border-collapse">
                                 <thead>
                                 <tr class="bg-gray-50 text-gray-600 text-sm uppercase tracking-wider">
-                                    <th class="px-4 py-3 border-b">Recipe Title</th>
-                                    <th class="px-4 py-3 border-b">Author</th>
-                                    <th class="px-4 py-3 border-b">Date Submitted</th>
-                                    <th class="px-4 py-3 border-b text-right">Actions</th>
+                                    <th class="px-4 py-3 border-b">{{ __('messages.recipe_title') }}</th>
+                                    <th class="px-4 py-3 border-b">{{ __('messages.author') }}</th>
+                                    <th class="px-4 py-3 border-b">{{ __('messages.date_submitted') }}</th>
+                                    <th class="px-4 py-3 border-b text-right">{{ __('messages.actions') }}</th>
                                 </tr>
                                 </thead>
                                 <tbody class="divide-y divide-gray-100">
@@ -91,15 +91,15 @@
                                                 @csrf
                                                 @method('PATCH')
                                                 <button type="submit" class="bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600 text-sm font-medium transition">
-                                                    Approve
+                                                    {{ __('messages.approve') }}
                                                 </button>
                                             </form>
 
                                             <form action="{{ route('admin.recipes.reject', $recipe) }}" method="POST">
                                                 @csrf
                                                 @method('PATCH')
-                                                <button type="submit" class="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 text-sm font-medium transition" onclick="return confirm('Are you sure you want to reject this recipe?')">
-                                                    Reject
+                                                <button type="submit" class="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 text-sm font-medium transition" onclick="return confirm('{{ __('messages.are_you_sure_reject') }}')">
+                                                    {{ __('messages.reject') }}
                                                 </button>
                                             </form>
                                         </td>
@@ -107,6 +107,10 @@
                                 @endforeach
                                 </tbody>
                             </table>
+                        </div>
+
+                        <div class="mt-4">
+                            {{ $pendingRecipes->links() }}
                         </div>
                     @endif
                 </div>

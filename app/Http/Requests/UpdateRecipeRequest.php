@@ -32,4 +32,15 @@ class UpdateRecipeRequest extends FormRequest
             'amounts.*'     => ['required', 'string'],
         ];
     }
+
+    public function messages(): array
+    {
+        return [
+            'title.required'       => __('messages.title_required'),
+            'ingredients.required' => __('messages.ingredients_required'),
+            'category_id.exists'   => __('messages.category_exists'),
+            'cuisine_id.exists'    => __('messages.cuisine_exists'),
+            'image.max'            => __('messages.image_max'),
+        ];
+    }
 }

@@ -1,19 +1,19 @@
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            {{ __('Добавить новый рецепт') }}
+        <h2 class="font-bold text-2xl text-lime-900 leading-tight">
+            {{ __('Add New Recipe') }}
         </h2>
     </x-slot>
 
     <div class="py-12">
         <div class="max-w-4xl mx-auto sm:px-6 lg:px-8">
-            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                <div class="p-6 text-gray-900">
+            <div class="bg-white overflow-hidden shadow-xl shadow-lime-200/50 sm:rounded-[2.5rem] border border-lime-100">
+                <div class="p-10 text-gray-900">
 
                     @if ($errors->any())
-                        <div class="mb-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
-                            <strong>Ой! В форме есть ошибки:</strong>
-                            <ul class="mt-2 list-disc list-inside text-sm">
+                        <div class="mb-6 bg-red-50 border border-red-200 text-red-700 px-6 py-4 rounded-2xl">
+                            <strong class="font-bold block mb-2 text-lg">{{ __('messages.oops_errors') }}</strong>
+                            <ul class="list-disc list-inside text-sm space-y-1">
                                 @foreach ($errors->all() as $error)
                                     <li>{{ $error }}</li>
                                 @endforeach
@@ -21,71 +21,71 @@
                         </div>
                     @endif
 
-                    <form action="{{ route('recipes.store') }}" method="POST" enctype="multipart/form-data">
+                    <form action="{{ route('recipes.store') }}" method="POST" enctype="multipart/form-data" class="space-y-8">
                         @csrf
 
-                        <div class="mb-4">
-                            <label for="title" class="block text-sm font-medium text-gray-700">Название рецепта</label>
+                        <div class="space-y-2">
+                            <label for="title" class="block text-sm font-bold text-lime-800">{{ __('messages.recipe_title') }}</label>
                             <input type="text" name="title" id="title" value="{{ old('title') }}" required
-                                   class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                                   class="block w-full rounded-xl border-lime-200 shadow-sm focus:border-lime-500 focus:ring-lime-500 py-3 px-4 transition duration-150">
                         </div>
 
-                        <div class="mb-4">
-                            <label for="description" class="block text-sm font-medium text-gray-700">Краткое описание</label>
+                        <div class="space-y-2">
+                            <label for="description" class="block text-sm font-bold text-lime-800">{{ __('messages.short_description') }}</label>
                             <textarea name="description" id="description" rows="2" required
-                                      class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">{{ old('description') }}</textarea>
-                            <p class="text-xs text-gray-500 mt-1">Минимум 10 символов</p>
+                                      class="block w-full rounded-xl border-lime-200 shadow-sm focus:border-lime-500 focus:ring-lime-500 py-3 px-4 transition duration-150">{{ old('description') }}</textarea>
+                            <p class="text-xs text-lime-600 mt-1 italic">{{ __('messages.minimum_characters', ['count' => 10]) }}</p>
                         </div>
 
-                        <div class="mb-4">
-                            <label for="instructions" class="block text-sm font-medium text-gray-700">Инструкция по приготовлению</label>
+                        <div class="space-y-2">
+                            <label for="instructions" class="block text-sm font-bold text-lime-800">{{ __('messages.instructions') }}</label>
                             <textarea name="instructions" id="instructions" rows="5" required
-                                      class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">{{ old('instructions') }}</textarea>
-                            <p class="text-xs text-gray-500 mt-1">Минимум 20 символов</p>
+                                      class="block w-full rounded-xl border-lime-200 shadow-sm focus:border-lime-500 focus:ring-lime-500 py-3 px-4 transition duration-150">{{ old('instructions') }}</textarea>
+                            <p class="text-xs text-lime-600 mt-1 italic">{{ __('messages.minimum_characters', ['count' => 20]) }}</p>
                         </div>
 
-                        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
-                            <div>
-                                <label for="prep_time" class="block text-sm font-medium text-gray-700">Подготовка (мин)</label>
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+                            <div class="space-y-2">
+                                <label for="prep_time" class="block text-sm font-bold text-lime-800">{{ __('messages.prep_time_min') }}</label>
                                 <input type="number" name="prep_time" id="prep_time" value="{{ old('prep_time') }}" required min="1"
-                                       class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                                       class="block w-full rounded-xl border-lime-200 shadow-sm focus:border-lime-500 focus:ring-lime-500 py-3 px-4 transition duration-150">
                             </div>
 
-                            <div>
-                                <label for="cook_time" class="block text-sm font-medium text-gray-700">Готовка (мин)</label>
+                            <div class="space-y-2">
+                                <label for="cook_time" class="block text-sm font-bold text-lime-800">{{ __('messages.cook_time_min') }}</label>
                                 <input type="number" name="cook_time" id="cook_time" value="{{ old('cook_time') }}" required min="1"
-                                       class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                                       class="block w-full rounded-xl border-lime-200 shadow-sm focus:border-lime-500 focus:ring-lime-500 py-3 px-4 transition duration-150">
                             </div>
 
-                            <div>
-                                <label for="servings" class="block text-sm font-medium text-gray-700">Порции</label>
+                            <div class="space-y-2">
+                                <label for="servings" class="block text-sm font-bold text-lime-800">{{ __('messages.servings') }}</label>
                                 <input type="number" name="servings" id="servings" value="{{ old('servings') }}" required min="1"
-                                       class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                                       class="block w-full rounded-xl border-lime-200 shadow-sm focus:border-lime-500 focus:ring-lime-500 py-3 px-4 transition duration-150">
                             </div>
 
-                            <div>
-                                <label for="difficulty" class="block text-sm font-medium text-gray-700">Сложность</label>
-                                <select name="difficulty" id="difficulty" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
-                                    <option value="easy" @selected(old('difficulty') == 'easy')>Легко (Easy)</option>
-                                    <option value="medium" @selected(old('difficulty') == 'medium')>Средне (Medium)</option>
-                                    <option value="hard" @selected(old('difficulty') == 'hard')>Сложно (Hard)</option>
+                            <div class="space-y-2">
+                                <label for="difficulty" class="block text-sm font-bold text-lime-800">{{ __('messages.difficulty') }}</label>
+                                <select name="difficulty" id="difficulty" required class="block w-full rounded-xl border-lime-200 shadow-sm focus:border-lime-500 focus:ring-lime-500 py-3 px-4 transition duration-150">
+                                    <option value="easy" @selected(old('difficulty') == 'easy')>{{ __('messages.easy') }}</option>
+                                    <option value="medium" @selected(old('difficulty') == 'medium')>{{ __('messages.medium') }}</option>
+                                    <option value="hard" @selected(old('difficulty') == 'hard')>{{ __('messages.hard') }}</option>
                                 </select>
                             </div>
                         </div>
 
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                            <div>
-                                <label for="category_id" class="block text-sm font-medium text-gray-700">Категория</label>
-                                <select name="category_id" id="category_id" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="space-y-2">
+                                <label for="category_id" class="block text-sm font-bold text-lime-800">{{ __('messages.category') }}</label>
+                                <select name="category_id" id="category_id" class="block w-full rounded-xl border-lime-200 shadow-sm focus:border-lime-500 focus:ring-lime-500 py-3 px-4 transition duration-150">
                                     @foreach($categories as $category)
                                         <option value="{{ $category->id }}" @selected(old('category_id') == $category->id)>{{ $category->name }}</option>
                                     @endforeach
                                 </select>
                             </div>
 
-                            <div>
-                                <label for="cuisine_id" class="block text-sm font-medium text-gray-700">Кухня</label>
-                                <select name="cuisine_id" id="cuisine_id" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                            <div class="space-y-2">
+                                <label for="cuisine_id" class="block text-sm font-bold text-lime-800">{{ __('messages.cuisine') }}</label>
+                                <select name="cuisine_id" id="cuisine_id" class="block w-full rounded-xl border-lime-200 shadow-sm focus:border-lime-500 focus:ring-lime-500 py-3 px-4 transition duration-150">
                                     @foreach($cuisines as $cuisine)
                                         <option value="{{ $cuisine->id }}" @selected(old('cuisine_id') == $cuisine->id)>{{ $cuisine->name }}</option>
                                     @endforeach
@@ -93,27 +93,32 @@
                             </div>
                         </div>
 
-                        <div class="mb-6">
-                            <label for="image" class="block text-sm font-medium text-gray-700">Фотография блюда (необязательно)</label>
-                            <input type="file" name="image" id="image" accept="image/*" class="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100">
+                        <div class="space-y-2">
+                            <label for="image" class="block text-sm font-bold text-lime-800">{{ __('messages.dish_photo') }}</label>
+                            <input type="file" name="image" id="image" accept="image/*" class="block w-full text-sm text-lime-600 file:mr-4 file:py-3 file:px-6 file:rounded-xl file:border-0 file:text-sm file:font-bold file:bg-lime-50 file:text-lime-700 hover:file:bg-lime-100 transition duration-150 cursor-pointer">
                         </div>
 
-                        <div class="mb-6 border-t pt-4">
-                            <h3 class="text-lg font-medium text-gray-900 mb-2">Ингредиенты</h3>
-                            <div id="ingredients-container">
-                                <div class="flex space-x-2 mb-2 ingredient-row">
-                                    <input type="text" name="ingredients[]" placeholder="Название (например: Молоко)" required
-                                           class="flex-1 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
-                                    <input type="text" name="amounts[]" placeholder="Кол-во (напр: 200 мл)" required
-                                           class="w-1/3 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                        <div class="border-t border-lime-100 pt-8">
+                            <h3 class="text-xl font-bold text-lime-900 mb-6 flex items-center gap-2">
+                                <span class="w-8 h-8 bg-lime-100 text-lime-600 rounded-lg flex items-center justify-center text-sm">🥗</span>
+                                {{ __('messages.ingredients') }}
+                            </h3>
+                            <div id="ingredients-container" class="space-y-4">
+                                <div class="flex space-x-3 ingredient-row">
+                                    <input type="text" name="ingredients[]" placeholder="{{ __('messages.ingredient_name') }}" required
+                                           class="flex-1 rounded-xl border-lime-200 shadow-sm focus:border-lime-500 focus:ring-lime-500 py-3 px-4 transition duration-150">
+                                    <input type="text" name="amounts[]" placeholder="{{ __('messages.amount_placeholder') }}" required
+                                           class="w-1/3 rounded-xl border-lime-200 shadow-sm focus:border-lime-500 focus:ring-lime-500 py-3 px-4 transition duration-150">
                                 </div>
                             </div>
-                            <button type="button" id="add-ingredient" class="mt-2 text-sm text-indigo-600 hover:text-indigo-900">+ Добавить ингредиент</button>
+                            <button type="button" id="add-ingredient" class="mt-6 inline-flex items-center text-sm font-bold text-lime-600 hover:text-lime-800 transition duration-150">
+                                <span class="mr-2 text-xl">+</span> {{ __('messages.add_ingredient') }}
+                            </button>
                         </div>
 
-                        <div class="flex justify-end mt-6">
-                            <button type="submit" class="bg-gray-800 text-white px-4 py-2 rounded-md hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-800">
-                                Сохранить рецепт
+                        <div class="flex justify-end pt-8 border-t border-lime-100">
+                            <button type="submit" class="bg-lime-600 text-white px-8 py-4 rounded-2xl font-bold hover:bg-lime-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-lime-500 shadow-lg shadow-lime-200/50 transition duration-150 active:scale-95">
+                                {{ __('messages.save_recipe') }}
                             </button>
                         </div>
                     </form>
@@ -127,11 +132,11 @@
         document.getElementById('add-ingredient').addEventListener('click', function() {
             const container = document.getElementById('ingredients-container');
             const row = document.createElement('div');
-            row.className = 'flex space-x-2 mb-2 ingredient-row';
+            row.className = 'flex space-x-3 ingredient-row';
             row.innerHTML = `
-                <input type="text" name="ingredients[]" placeholder="Название" required class="flex-1 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
-                <input type="text" name="amounts[]" placeholder="Кол-во" required class="w-1/3 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
-                <button type="button" class="text-red-500 px-2 font-bold remove-ingredient">&times;</button>
+                <input type="text" name="ingredients[]" placeholder="{{ __('messages.ingredient_name') }}" required class="flex-1 rounded-xl border-lime-200 shadow-sm focus:border-lime-500 focus:ring-lime-500 py-3 px-4 transition duration-150">
+                <input type="text" name="amounts[]" placeholder="{{ __('messages.amount_placeholder') }}" required class="w-1/3 rounded-xl border-lime-200 shadow-sm focus:border-lime-500 focus:ring-lime-500 py-3 px-4 transition duration-150">
+                <button type="button" class="text-red-500 px-3 font-black remove-ingredient hover:text-red-700 transition duration-150">&times;</button>
             `;
             container.appendChild(row);
         });

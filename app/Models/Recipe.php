@@ -54,6 +54,11 @@ class Recipe extends Model
         return $this->belongsTo(Cuisine::class);
     }
 
+    public function isOwnedBy(User $user): bool
+    {
+        return $this->user_id === $user->id;
+    }
+
     public function ingredients()
     {
         // 1. Явно указываем нестандартное имя таблицы: 'recipe_ingredient'
