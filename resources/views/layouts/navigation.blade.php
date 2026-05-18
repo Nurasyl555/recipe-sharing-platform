@@ -1,4 +1,4 @@
-<nav x-data="{ open: false }" class="bg-white border-b border-gray-100">
+﻿<nav x-data="{ open: false }" class="bg-white border-b border-gray-100">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between h-16">
             <div class="flex">
@@ -22,6 +22,10 @@
                             {{ __('Create Recipe') }}
                         </x-nav-link>
 
+                        <x-nav-link :href="route('favorites.index')" :active="request()->routeIs('favorites.index')">
+                            {{ __('Favorites') }}
+                        </x-nav-link>
+
                         @if(Auth::user()->isAdmin())
                             <x-nav-link :href="route('admin.dashboard')" :active="request()->routeIs('admin.dashboard')">
                                 <span class="text-lime-700 font-bold border-b-2 border-lime-500">{{ __('Admin Panel') }}</span>
@@ -41,7 +45,7 @@
                                         <img class="h-8 w-8 rounded-full object-cover border-2 border-lime-200" src="{{ asset('storage/' . Auth::user()->avatar) }}" alt="{{ Auth::user()->name }}">
                                     @else
                                         <div class="h-8 w-8 rounded-full bg-lime-100 text-lime-600 flex items-center justify-center font-bold border-2 border-lime-200">
-                                            {{ substr(Auth::user()->name, 0, 1) }}
+                                            {{ mb_substr(Auth::user()->name, 0, 1) }}
                                         </div>
                                     @endif
                                     <span>{{ Auth::user()->name }}</span>
@@ -108,6 +112,10 @@
                     {{ __('Create Recipe') }}
                 </x-responsive-nav-link>
 
+                <x-responsive-nav-link :href="route('favorites.index')" :active="request()->routeIs('favorites.index')">
+                    {{ __('Favorites') }}
+                </x-responsive-nav-link>
+
                 @if(Auth::user()->isAdmin())
                     <x-responsive-nav-link :href="route('admin.dashboard')" :active="request()->routeIs('admin.dashboard')">
                         <span class="text-red-500 font-semibold">{{ __('Admin Panel') }}</span>
@@ -123,7 +131,7 @@
                         <img class="h-10 w-10 rounded-full object-cover border-2 border-lime-200" src="{{ asset('storage/' . Auth::user()->avatar) }}" alt="{{ Auth::user()->name }}">
                     @else
                         <div class="h-10 w-10 rounded-full bg-lime-100 text-lime-600 flex items-center justify-center font-bold border-2 border-lime-200">
-                            {{ substr(Auth::user()->name, 0, 1) }}
+                            {{ mb_substr(Auth::user()->name, 0, 1) }}
                         </div>
                     @endif
                     <div>
@@ -151,3 +159,6 @@
         @endauth
     </div>
 </nav>
+
+
+

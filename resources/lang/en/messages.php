@@ -20,6 +20,7 @@ return [
     'clear' => 'Clear',
     'no_recipes' => 'No recipes found',
     'my_recipes' => 'My Recipes',
+    'my_collection' => 'My Collection',
     'create_recipe' => 'Create Recipe',
     'admin_panel' => 'Admin Panel',
     'profile' => 'Profile',
@@ -117,4 +118,5 @@ return [
     'category_exists' => 'Selected category does not exist.',
     'cuisine_exists' => 'Selected cuisine does not exist.',
     'image_max' => 'Image must be less than 2MB.',
+    'image_upload_error' => 'Error uploading image. Check file size and format.',
 ];

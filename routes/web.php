@@ -37,6 +37,8 @@ Route::middleware('auth')->group(function () {
         return view('recipes.my-recipes', compact('recipes'));
     })->name('recipes.my-recipes');
 
+    Route::get('/favorites', [FavoriteController::class, 'index'])->name('favorites.index');
+
     Route::post('/ratings', [RatingController::class, 'store'])->name('ratings.store');
     Route::delete('/ratings/{recipeId}', [RatingController::class, 'destroy'])->name('ratings.destroy');
     Route::post('/favorites/{recipeId}', [FavoriteController::class, 'store'])->name('favorites.store');
