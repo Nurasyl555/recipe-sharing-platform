@@ -12,16 +12,18 @@ class RatingController extends Controller
     {
         $request->validate([
             'recipe_id' => 'required|exists:recipes,id',
-            'rating' => 'required|integer|min:1|max:5',
+            'score' => 'required|integer|min:1|max:5',
+            'comment' => 'nullable|string|max:1000',
         ]);
 
         $rating = Rating::updateOrCreate(
             [
-                'user_id' => Auth::id(),
+                'user_id' => auth()->id(),
                 'recipe_id' => $request->recipe_id,
             ],
             [
-                'rating' => $request->rating,
+                'score' => $request->score,
+                'comment' => $request->comment,
             ]
         );
 
