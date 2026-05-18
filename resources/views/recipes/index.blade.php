@@ -53,7 +53,7 @@
                 <!-- Max Time -->
                 <div class="space-y-2">
                     <label class="text-sm font-bold text-lime-800 ml-1">{{ __('messages.max_time') }}</label>
-                    <input type="number" name="max_time" value="{{ request('max_time') }}" placeholder="e.g. 60" min="1"
+                    <input type="number" name="max_time" value="{{ request('max_time') }}" placeholder="{{ __('messages.min') }}" min="1"
                            class="w-full px-4 py-3 border border-lime-200 rounded-2xl focus:ring-2 focus:ring-lime-500 focus:border-lime-500 transition duration-150">
                 </div>
 

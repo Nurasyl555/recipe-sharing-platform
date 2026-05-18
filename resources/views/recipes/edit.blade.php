@@ -51,11 +51,11 @@
                                     </select>
                                 </div>
                                 <div>
-                                    <x-input-label for="difficulty" :value="__('Difficulty')" />
+                                    <x-input-label for="difficulty" :value="__('messages.difficulty')" />
                                     <select name="difficulty" class="mt-1 block w-full border-lime-200 rounded-xl shadow-sm py-3 px-4 focus:border-lime-500 focus:ring-lime-500">
-                                        <option value="easy" {{ $recipe->difficulty == 'easy' ? 'selected' : '' }}>Easy</option>
-                                        <option value="medium" {{ $recipe->difficulty == 'medium' ? 'selected' : '' }}>Medium</option>
-                                        <option value="hard" {{ $recipe->difficulty == 'hard' ? 'selected' : '' }}>Hard</option>
+                                        <option value="easy" {{ $recipe->difficulty == 'easy' ? 'selected' : '' }}>{{ __('messages.easy') }}</option>
+                                        <option value="medium" {{ $recipe->difficulty == 'medium' ? 'selected' : '' }}>{{ __('messages.medium') }}</option>
+                                        <option value="hard" {{ $recipe->difficulty == 'hard' ? 'selected' : '' }}>{{ __('messages.hard') }}</option>
                                     </select>
                                 </div>
                             </div>
@@ -63,7 +63,7 @@
 
                         <div class="space-y-6">
                             <div>
-                                <x-input-label :value="__('Recipe Image')" />
+                                <x-input-label :value="__('messages.recipe_image')" />
                                 @if($recipe->image)
                                     <div class="relative rounded-2xl overflow-hidden mb-3 border-2 border-lime-100 shadow-sm">
                                         <img src="{{ asset('storage/' . $recipe->image) }}" class="h-48 w-full object-cover">
@@ -74,7 +74,7 @@
                             </div>
 
                             <div>
-                                <x-input-label for="instructions" :value="__('Instructions')" />
+                                <x-input-label for="instructions" :value="__('messages.instructions')" />
                                 <textarea id="instructions" name="instructions" rows="8" class="mt-1 block w-full border-lime-200 focus:border-lime-500 focus:ring-lime-500 rounded-xl shadow-sm py-3 px-4">{{ old('instructions', $recipe->instructions) }}</textarea>
                             </div>
                         </div>
@@ -83,13 +83,13 @@
                     <div class="mt-10 border-t border-lime-100 pt-8">
                         <h3 class="text-xl font-bold text-lime-900 mb-6 flex items-center gap-2">
                             <span class="w-8 h-8 bg-lime-100 text-lime-600 rounded-lg flex items-center justify-center text-sm">🥗</span>
-                            Ingredients
+                            {{ __('messages.ingredients') }}
                         </h3>
                         <div id="ingredients-container" class="space-y-4">
                             @foreach($recipe->ingredients as $index => $ingredient)
                                 <div class="flex items-center space-x-3 ingredient-row">
-                                    <x-text-input name="ingredients[]" type="text" placeholder="Ingredient name" class="flex-1 py-3 px-4" :value="$ingredient->name" required />
-                                    <x-text-input name="amounts[]" type="text" placeholder="Amount (e.g. 200g)" class="w-1/3 py-3 px-4" :value="$ingredient->pivot->amount" required />
+                                    <x-text-input name="ingredients[]" type="text" placeholder="{{ __('messages.ingredient_name') }}" class="flex-1 py-3 px-4" :value="$ingredient->name" required />
+                                    <x-text-input name="amounts[]" type="text" placeholder="{{ __('messages.amount_placeholder') }}" class="w-1/3 py-3 px-4" :value="$ingredient->pivot->amount" required />
                                     <button type="button" onclick="this.parentElement.remove()" class="text-red-500 hover:text-red-700 transition duration-150 px-2">
                                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
                                     </button>
@@ -97,12 +97,12 @@
                             @endforeach
                         </div>
                         <button type="button" id="add-ingredient" class="mt-6 inline-flex items-center text-sm font-bold text-lime-600 hover:text-lime-800 transition duration-150">
-                            <span class="mr-2 text-xl">+</span> Add Ingredient
+                            <span class="mr-2 text-xl">+</span> {{ __('messages.add_ingredient') }}
                         </button>
                     </div>
 
                     <div class="flex justify-end pt-8 border-t border-lime-100">
-                        <x-primary-button class="px-8 py-4 shadow-lg shadow-lime-200/50">Update Recipe</x-primary-button>
+                        <x-primary-button class="px-8 py-4 shadow-lg shadow-lime-200/50">{{ __('messages.update_recipe') }}</x-primary-button>
                     </div>
                 </form>
             </div>
@@ -115,8 +115,8 @@
             const row = document.createElement('div');
             row.className = 'flex items-center space-x-3 ingredient-row';
             row.innerHTML = `
-                <input type="text" name="ingredients[]" placeholder="Ingredient name" class="flex-1 border-lime-200 focus:border-lime-500 focus:ring-lime-500 rounded-xl shadow-sm py-3 px-4 transition duration-150" required>
-                <input type="text" name="amounts[]" placeholder="Amount (e.g. 200g)" class="w-1/3 border-lime-200 focus:border-lime-500 focus:ring-lime-500 rounded-xl shadow-sm py-3 px-4 transition duration-150" required>
+                <input type="text" name="ingredients[]" placeholder="{{ __('messages.ingredient_name') }}" class="flex-1 border-lime-200 focus:border-lime-500 focus:ring-lime-500 rounded-xl shadow-sm py-3 px-4 transition duration-150" required>
+                <input type="text" name="amounts[]" placeholder="{{ __('messages.amount_placeholder') }}" class="w-1/3 border-lime-200 focus:border-lime-500 focus:ring-lime-500 rounded-xl shadow-sm py-3 px-4 transition duration-150" required>
                 <button type="button" onclick="this.parentElement.remove()" class="text-red-500 hover:text-red-700 transition duration-150 px-2">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
                 </button>
