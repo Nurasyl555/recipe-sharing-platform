@@ -297,7 +297,33 @@
                     "required": true,
                     "content": {
                         "application/json": {
-                            "schema": {}
+                            "schema": {
+                                "required": [
+                                    "title",
+                                    "description",
+                                    "category_id"
+                                ],
+                                "properties": {
+                                    "title": {
+                                        "type": "string",
+                                        "example": "Pasta Carbonara"
+                                    },
+                                    "description": {
+                                        "type": "string",
+                                        "example": "Delicious pasta"
+                                    },
+                                    "category_id": {
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "cuisine_id": {
+                                        "type": "integer",
+                                        "example": 1,
+                                        "nullable": true
+                                    }
+                                },
+                                "type": "object"
+                            }
                         }
                     }
                 },
@@ -316,7 +342,7 @@
                 ]
             }
         },
-        "/api/recipes/{id}": {
+        "/api/recipes/{recipe}": {
             "get": {
                 "tags": [
                     "Recipes"
@@ -325,7 +351,7 @@
                 "operationId": "showRecipe",
                 "parameters": [
                     {
-                        "name": "id",
+                        "name": "recipe",
                         "in": "path",
                         "required": true,
                         "schema": {
@@ -350,7 +376,7 @@
                 "operationId": "updateRecipe",
                 "parameters": [
                     {
-                        "name": "id",
+                        "name": "recipe",
                         "in": "path",
                         "required": true,
                         "schema": {
@@ -362,7 +388,23 @@
                     "required": true,
                     "content": {
                         "application/json": {
-                            "schema": {}
+                            "schema": {
+                                "properties": {
+                                    "title": {
+                                        "type": "string"
+                                    },
+                                    "description": {
+                                        "type": "string"
+                                    },
+                                    "category_id": {
+                                        "type": "integer"
+                                    },
+                                    "cuisine_id": {
+                                        "type": "integer"
+                                    }
+                                },
+                                "type": "object"
+                            }
                         }
                     }
                 },
@@ -372,6 +414,9 @@
                     },
                     "422": {
                         "description": "Validation error"
+                    },
+                    "403": {
+                        "description": "Unauthorized"
                     }
                 },
                 "security": [
@@ -388,7 +433,7 @@
                 "operationId": "destroyRecipe",
                 "parameters": [
                     {
-                        "name": "id",
+                        "name": "recipe",
                         "in": "path",
                         "required": true,
                         "schema": {

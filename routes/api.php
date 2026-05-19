@@ -15,7 +15,7 @@ Route::post('/auth/register', [AuthController::class, 'register']);
 Route::post('/auth/login', [AuthController::class, 'login']);
 
 Route::get('/recipes', [RecipeController::class, 'index']);
-Route::get('/recipes/{id}', [RecipeController::class, 'show']);
+Route::get('/recipes/{recipe}', [RecipeController::class, 'show']);
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/user', fn(Request $request) => ApiResource::success(
@@ -24,8 +24,8 @@ Route::middleware('auth:sanctum')->group(function () {
     ));
 
     Route::post('/recipes', [RecipeController::class, 'store']);
-    Route::put('/recipes/{id}', [RecipeController::class, 'update']);
-    Route::delete('/recipes/{id}', [RecipeController::class, 'destroy']);
+    Route::put('/recipes/{recipe}', [RecipeController::class, 'update']);
+    Route::delete('/recipes/{recipe}', [RecipeController::class, 'destroy']);
 
     Route::post('/ratings', [RatingController::class, 'store']);
     Route::delete('/ratings/{recipeId}', [RatingController::class, 'destroy']);
