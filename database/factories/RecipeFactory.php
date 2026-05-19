@@ -2,6 +2,8 @@
 
 namespace Database\Factories;
 
+use App\Models\Category;
+use App\Models\Cuisine;
 use App\Models\Recipe;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
@@ -23,6 +25,8 @@ class RecipeFactory extends Factory
             'difficulty' => 'easy',
             'status' => 'published',
             'user_id' => User::factory(),
+            'category_id' => Category::factory(),
+            'cuisine_id' => Cuisine::factory(),
         ];
     }
 }

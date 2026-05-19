@@ -2,13 +2,11 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ProfileController;
-use App\Http\Controllers\RecipeController;
-use App\Http\Controllers\RatingController;
-use App\Http\Controllers\FavoriteController;
+use App\Http\Controllers\Web\RecipeController;
 
 Route::get('/', function () {
     return view('welcome');
-});
+})->name('home');
 
 Route::get('/lang/{locale}', function ($locale) {
     if (in_array($locale, ['en', 'ru', 'kk'])) {
@@ -17,23 +15,23 @@ Route::get('/lang/{locale}', function ($locale) {
     return back();
 })->name('lang.switch');
 
-// ==========================================
-// 1. ЗАЩИЩЕННЫЕ РОУТЫ (Должны быть выше!)
-// ==========================================
+// ============ PUBLIC PAGES ============
+Route::get('/recipes', [RecipeController::class, 'index'])->name('recipes.index');
+Route::get('/recipes/{id}', [RecipeController::class, 'show'])->name('recipes.show');
+
+// ============ AUTH PAGES ============
 Route::middleware('auth')->group(function () {
-    Route::get('/dashboard', function () {
-        return view('dashboard');
-    })->name('dashboard');
+    Route::get('/dashboard', fn() => view('dashboard'))->name('dashboard');
 
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
-    // Управление рецептами (create, store, edit, update, destroy)
-    Route::resource('recipes', RecipeController::class)->except(['index', 'show']);
-
     Route::get('/my-recipes', function () {
-        $recipes = auth()->user()->recipes()->with(['category', 'cuisine'])->latest()->paginate(10);
+        $recipes = auth()->user()->recipes()
+            ->with(['category', 'cuisine'])
+            ->latest()
+            ->paginate(10);
         return view('recipes.my-recipes', compact('recipes'));
     })->name('recipes.my-recipes');
 
@@ -45,41 +43,28 @@ Route::middleware('auth')->group(function () {
     Route::delete('/favorites/{recipeId}', [FavoriteController::class, 'destroy'])->name('favorites.destroy');
 });
 
-// ==========================================
-// 2. ОТКРЫТЫЕ РОУТЫ (Опускаем вниз)
-// ==========================================
-Route::resource('recipes', RecipeController::class)->only(['index', 'show']);
-
-
-// Админ панель
+// ============ ADMIN ============
 Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/dashboard', function () {
-        return view('admin.dashboard');
-    })->name('dashboard');
-});
-// Админ панель
-Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
-
-    // Главная панель
-    Route::get('/dashboard', function () {
-    // Берем статистику и рецепты, ожидающие проверки (пагинация)
-    $pendingRecipes = \App\Models\Recipe::with('user')->where('status', 'draft')->latest()->paginate(10);
+        $pendingRecipes = \App\Models\Recipe::with('user')
+            ->where('status', 'draft')
+            ->latest()
+            ->paginate(10);
         $totalRecipes = \App\Models\Recipe::count();
         $totalUsers = \App\Models\User::count();
 
         return view('admin.dashboard', compact('pendingRecipes', 'totalRecipes', 'totalUsers'));
     })->name('dashboard');
 
-    // Одобрить рецепт
     Route::patch('/recipes/{recipe}/approve', function (\App\Models\Recipe $recipe) {
         $recipe->update(['status' => 'published']);
         return back()->with('success', __('messages.recipe_approved'));
     })->name('recipes.approve');
 
-    // Отклонить рецепт
     Route::patch('/recipes/{recipe}/reject', function (\App\Models\Recipe $recipe) {
         $recipe->update(['status' => 'rejected']);
         return back()->with('success', __('messages.recipe_rejected'));
     })->name('recipes.reject');
 });
+
 require __DIR__.'/auth.php';

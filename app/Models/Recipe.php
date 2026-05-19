@@ -44,26 +44,31 @@ class Recipe extends Model
     {
         return $this->hasMany(Rating::class);
     }
+
     public function category()
     {
         return $this->belongsTo(Category::class);
     }
-    // Добавь вот этот блок:
+
     public function cuisine()
     {
         return $this->belongsTo(Cuisine::class);
     }
 
+    public function ingredients()
+    {
+        return $this->belongsToMany(Ingredient::class, 'recipe_ingredient')
+            ->withPivot('amount', 'unit')
+            ->withTimestamps();
+    }
+
+    public function favorites()
+    {
+        return $this->hasMany(Favorite::class);
+    }
+
     public function isOwnedBy(User $user): bool
     {
         return $this->user_id === $user->id;
-    }
-
-    public function ingredients()
-    {
-        // 1. Явно указываем нестандартное имя таблицы: 'recipe_ingredient'
-        // 2. Исправляем 'quantity' на 'amount'
-        return $this->belongsToMany(Ingredient::class, 'recipe_ingredient')
-            ->withPivot('amount', 'unit');
     }
 }

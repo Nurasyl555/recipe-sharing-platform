@@ -1,0 +1,760 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "Recipe Sharing Platform API",
+        "description": "API для платформы обмена рецептами с поддержкой аутентификации, оценок и избранного",
+        "contact": {
+            "name": "Support",
+            "email": "support@recipes.local"
+        },
+        "license": {
+            "name": "MIT"
+        },
+        "version": "1.0.0"
+    },
+    "servers": [
+        {
+            "url": "http://localhost:8000/api",
+            "description": "Development Server"
+        },
+        {
+            "url": "http://127.0.0.1:8000"
+        }
+    ],
+    "paths": {
+        "/auth/register": {
+            "post": {
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Register new user",
+                "description": "Create a new user account",
+                "operationId": "register",
+                "requestBody": {
+                    "description": "User registration data",
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "name",
+                                    "email",
+                                    "password"
+                                ],
+                                "properties": {
+                                    "name": {
+                                        "type": "string",
+                                        "example": "John Doe",
+                                        "maxLength": 255
+                                    },
+                                    "email": {
+                                        "type": "string",
+                                        "format": "email",
+                                        "example": "john@example.com"
+                                    },
+                                    "password": {
+                                        "type": "string",
+                                        "format": "password",
+                                        "example": "password123",
+                                        "minLength": 6
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "User registered successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "data": {
+                                            "properties": {
+                                                "id": {
+                                                    "type": "integer"
+                                                },
+                                                "name": {
+                                                    "type": "string"
+                                                },
+                                                "email": {
+                                                    "type": "string"
+                                                }
+                                            },
+                                            "type": "object"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "User registered successfully"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation failed"
+                    }
+                }
+            }
+        },
+        "/auth/login": {
+            "post": {
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "User login",
+                "description": "Authenticate user and get API token",
+                "operationId": "login",
+                "requestBody": {
+                    "description": "Login credentials",
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "email",
+                                    "password"
+                                ],
+                                "properties": {
+                                    "email": {
+                                        "type": "string",
+                                        "format": "email",
+                                        "example": "john@example.com"
+                                    },
+                                    "password": {
+                                        "type": "string",
+                                        "format": "password",
+                                        "example": "password123"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Login successful",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "data": {
+                                            "properties": {
+                                                "token": {
+                                                    "description": "API Bearer token",
+                                                    "type": "string"
+                                                },
+                                                "user": {
+                                                    "properties": {
+                                                        "id": {
+                                                            "type": "integer"
+                                                        },
+                                                        "name": {
+                                                            "type": "string"
+                                                        },
+                                                        "email": {
+                                                            "type": "string"
+                                                        }
+                                                    },
+                                                    "type": "object"
+                                                }
+                                            },
+                                            "type": "object"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Login successful"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Invalid credentials"
+                    }
+                }
+            }
+        },
+        "/favorites": {
+            "post": {
+                "tags": [
+                    "Favorites"
+                ],
+                "summary": "Add recipe to favorites",
+                "description": "Add a recipe to user's favorite list",
+                "operationId": "storeFavorite",
+                "requestBody": {
+                    "description": "Favorite data",
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "recipe_id"
+                                ],
+                                "properties": {
+                                    "recipe_id": {
+                                        "description": "Recipe ID",
+                                        "type": "integer",
+                                        "example": 1
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Recipe added to favorites"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "422": {
+                        "description": "Validation error or already favorited"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/favorites/{recipeId}": {
+            "delete": {
+                "tags": [
+                    "Favorites"
+                ],
+                "summary": "Remove recipe from favorites",
+                "description": "Remove a recipe from user's favorite list",
+                "operationId": "destroyFavorite",
+                "parameters": [
+                    {
+                        "name": "recipeId",
+                        "in": "path",
+                        "description": "Recipe ID",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Recipe removed from favorites"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "404": {
+                        "description": "Favorite not found"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/ratings": {
+            "post": {
+                "tags": [
+                    "Ratings"
+                ],
+                "summary": "Rate a recipe",
+                "description": "Add or update a rating for a recipe",
+                "operationId": "storeRating",
+                "requestBody": {
+                    "description": "Rating data",
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "recipe_id",
+                                    "rating"
+                                ],
+                                "properties": {
+                                    "recipe_id": {
+                                        "description": "Recipe ID",
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "rating": {
+                                        "description": "Rating score (1-5)",
+                                        "type": "integer",
+                                        "example": 5,
+                                        "maximum": 5,
+                                        "minimum": 1
+                                    },
+                                    "comment": {
+                                        "description": "Optional comment",
+                                        "type": "string",
+                                        "example": "Delicious!",
+                                        "nullable": true,
+                                        "maxLength": 1000
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Rating created successfully"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "422": {
+                        "description": "Validation error or duplicate rating"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/ratings/{recipeId}": {
+            "delete": {
+                "tags": [
+                    "Ratings"
+                ],
+                "summary": "Delete rating",
+                "description": "Remove a rating for a recipe",
+                "operationId": "destroyRating",
+                "parameters": [
+                    {
+                        "name": "recipeId",
+                        "in": "path",
+                        "description": "Recipe ID",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Rating deleted successfully"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "404": {
+                        "description": "Rating not found"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/recipes": {
+            "get": {
+                "tags": [
+                    "Recipes"
+                ],
+                "summary": "Get all published recipes",
+                "description": "Retrieve a paginated list of published recipes",
+                "operationId": "listRecipes",
+                "parameters": [
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "description": "Page number",
+                        "schema": {
+                            "type": "integer",
+                            "default": 1
+                        }
+                    },
+                    {
+                        "name": "limit",
+                        "in": "query",
+                        "description": "Items per page",
+                        "schema": {
+                            "type": "integer",
+                            "default": 15
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Recipes list retrieved",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "object"
+                                            }
+                                        },
+                                        "message": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "Recipes"
+                ],
+                "summary": "Create new recipe",
+                "description": "Create a new recipe (requires authentication)",
+                "operationId": "storeRecipe",
+                "requestBody": {
+                    "description": "Recipe data",
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "title",
+                                    "description",
+                                    "instructions",
+                                    "prep_time",
+                                    "cook_time",
+                                    "servings",
+                                    "difficulty",
+                                    "category_id",
+                                    "cuisine_id",
+                                    "ingredients",
+                                    "amounts"
+                                ],
+                                "properties": {
+                                    "title": {
+                                        "type": "string",
+                                        "example": "Pasta Carbonara",
+                                        "maxLength": 255,
+                                        "minLength": 3
+                                    },
+                                    "description": {
+                                        "type": "string",
+                                        "example": "Delicious Italian pasta",
+                                        "minLength": 10
+                                    },
+                                    "instructions": {
+                                        "type": "string",
+                                        "example": "Step 1... Step 2...",
+                                        "minLength": 20
+                                    },
+                                    "prep_time": {
+                                        "type": "integer",
+                                        "example": 10,
+                                        "minimum": 1
+                                    },
+                                    "cook_time": {
+                                        "type": "integer",
+                                        "example": 20,
+                                        "minimum": 1
+                                    },
+                                    "servings": {
+                                        "type": "integer",
+                                        "example": 4,
+                                        "minimum": 1
+                                    },
+                                    "difficulty": {
+                                        "type": "string",
+                                        "enum": [
+                                            "easy",
+                                            "medium",
+                                            "hard"
+                                        ]
+                                    },
+                                    "category_id": {
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "cuisine_id": {
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "ingredients": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string"
+                                        },
+                                        "example": [
+                                            "Pasta",
+                                            "Tomato"
+                                        ]
+                                    },
+                                    "amounts": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string"
+                                        },
+                                        "example": [
+                                            "500g",
+                                            "300ml"
+                                        ]
+                                    },
+                                    "image": {
+                                        "type": "string",
+                                        "format": "binary",
+                                        "nullable": true
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Recipe created successfully"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "422": {
+                        "description": "Validation error"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/recipes/{recipe}": {
+            "get": {
+                "tags": [
+                    "Recipes"
+                ],
+                "summary": "Get recipe by ID",
+                "description": "Retrieve a single recipe with all details",
+                "operationId": "showRecipe",
+                "parameters": [
+                    {
+                        "name": "recipe",
+                        "in": "path",
+                        "description": "Recipe ID",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Recipe retrieved"
+                    },
+                    "404": {
+                        "description": "Recipe not found"
+                    }
+                }
+            },
+            "put": {
+                "tags": [
+                    "Recipes"
+                ],
+                "summary": "Update recipe",
+                "description": "Update a recipe (owner only)",
+                "operationId": "updateRecipe",
+                "parameters": [
+                    {
+                        "name": "recipe",
+                        "in": "path",
+                        "description": "Recipe ID",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "description": "Updated recipe data",
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "title",
+                                    "description",
+                                    "instructions",
+                                    "prep_time",
+                                    "cook_time",
+                                    "servings",
+                                    "difficulty",
+                                    "category_id",
+                                    "cuisine_id"
+                                ],
+                                "properties": {
+                                    "title": {
+                                        "type": "string"
+                                    },
+                                    "description": {
+                                        "type": "string"
+                                    },
+                                    "instructions": {
+                                        "type": "string"
+                                    },
+                                    "prep_time": {
+                                        "type": "integer"
+                                    },
+                                    "cook_time": {
+                                        "type": "integer"
+                                    },
+                                    "servings": {
+                                        "type": "integer"
+                                    },
+                                    "difficulty": {
+                                        "type": "string"
+                                    },
+                                    "category_id": {
+                                        "type": "integer"
+                                    },
+                                    "cuisine_id": {
+                                        "type": "integer"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Recipe updated successfully"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "403": {
+                        "description": "Forbidden - Not owner"
+                    },
+                    "404": {
+                        "description": "Recipe not found"
+                    },
+                    "422": {
+                        "description": "Validation error"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "Recipes"
+                ],
+                "summary": "Delete recipe",
+                "description": "Delete a recipe (owner only)",
+                "operationId": "destroyRecipe",
+                "parameters": [
+                    {
+                        "name": "recipe",
+                        "in": "path",
+                        "description": "Recipe ID",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Recipe deleted successfully"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "403": {
+                        "description": "Forbidden - Not owner"
+                    },
+                    "404": {
+                        "description": "Recipe not found"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/health": {
+            "get": {
+                "tags": [
+                    "Health"
+                ],
+                "summary": "System health check",
+                "operationId": "health",
+                "responses": {
+                    "200": {
+                        "description": "System is healthy"
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "securitySchemes": {
+            "bearerAuth": {
+                "type": "http",
+                "description": "Sanctum API token",
+                "scheme": "bearer"
+            }
+        }
+    },
+    "tags": [
+        {
+            "name": "Auth",
+            "description": "Authentication endpoints"
+        },
+        {
+            "name": "Recipes",
+            "description": "Recipe CRUD operations"
+        },
+        {
+            "name": "Ratings",
+            "description": "Recipe ratings"
+        },
+        {
+            "name": "Favorites",
+            "description": "Favorite recipes"
+        },
+        {
+            "name": "Health",
+            "description": "Health"
+        }
+    ]
+}

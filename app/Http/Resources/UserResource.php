@@ -4,6 +4,7 @@ namespace App\Http\Resources;
 
 use Illuminate\Http\Resources\Json\JsonResource;
 
+
 class UserResource extends JsonResource
 {
     public function toArray($request)
@@ -14,7 +15,8 @@ class UserResource extends JsonResource
             'email' => $this->email,
             'role' => $this->role ?? 'user',
             'avatar' => $this->avatar,
-            'created_at' => $this->created_at,
+            'created_at' => optional($this->created_at)?->toISOString(),
+            'updated_at' => optional($this->updated_at)?->toISOString(),
         ];
     }
 }
