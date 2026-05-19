@@ -4,27 +4,36 @@ namespace Tests\Feature;
 
 use App\Models\Recipe;
 use App\Models\Rating;
+<<<<<<< HEAD
 use App\Models\User;
+=======
+use Illuminate\Foundation\Testing\RefreshDatabase;
+>>>>>>> origin
 use Tests\TestCase;
 
 class RatingTest extends TestCase
 {
+<<<<<<< HEAD
     // Существующие unit-тесты
+=======
+    use RefreshDatabase;
+
+>>>>>>> origin
     public function test_recipe_average_rating_calculated_correctly()
     {
         $recipe = Recipe::factory()->create();
 
         Rating::factory(3)->create([
             'recipe_id' => $recipe->id,
-            'rating' => 5,
+            'score' => 5,
         ]);
 
         Rating::factory(1)->create([
             'recipe_id' => $recipe->id,
-            'rating' => 3,
+            'score' => 3,
         ]);
 
-        $avgRating = $recipe->ratings()->avg('rating');
+        $avgRating = $recipe->ratings()->avg('score');
         $this->assertEquals(4.5, $avgRating);
     }
 

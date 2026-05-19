@@ -20,6 +20,7 @@ return [
     'clear' => 'Тазалау',
     'no_recipes' => 'Рецепттер табылмады',
     'my_recipes' => 'Менің рецепттерім',
+    'my_collection' => 'Менің коллекциям',
     'create_recipe' => 'Рецепт жасау',
     'admin_panel' => 'Әкімші панелі',
     'profile' => 'Профиль',

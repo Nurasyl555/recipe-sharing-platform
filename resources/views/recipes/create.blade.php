@@ -105,9 +105,9 @@
                             </h3>
                             <div id="ingredients-container" class="space-y-4">
                                 <div class="flex space-x-3 ingredient-row">
-                                    <input type="text" name="ingredients[]" placeholder="{{ __('messages.ingredient_name') }}" required
+                                    <input type="text" name="ingredients[]" placeholder="{{ __('messages.ingredient_name') }}" required aria-label="{{ __('messages.ingredient_name') }}"
                                            class="flex-1 rounded-xl border-lime-200 shadow-sm focus:border-lime-500 focus:ring-lime-500 py-3 px-4 transition duration-150">
-                                    <input type="text" name="amounts[]" placeholder="{{ __('messages.amount_placeholder') }}" required
+                                    <input type="text" name="amounts[]" placeholder="{{ __('messages.amount_placeholder') }}" required aria-label="{{ __('messages.amount_placeholder') }}"
                                            class="w-1/3 rounded-xl border-lime-200 shadow-sm focus:border-lime-500 focus:ring-lime-500 py-3 px-4 transition duration-150">
                                 </div>
                             </div>
@@ -134,8 +134,8 @@
             const row = document.createElement('div');
             row.className = 'flex space-x-3 ingredient-row';
             row.innerHTML = `
-                <input type="text" name="ingredients[]" placeholder="{{ __('messages.ingredient_name') }}" required class="flex-1 rounded-xl border-lime-200 shadow-sm focus:border-lime-500 focus:ring-lime-500 py-3 px-4 transition duration-150">
-                <input type="text" name="amounts[]" placeholder="{{ __('messages.amount_placeholder') }}" required class="w-1/3 rounded-xl border-lime-200 shadow-sm focus:border-lime-500 focus:ring-lime-500 py-3 px-4 transition duration-150">
+                <input type="text" name="ingredients[]" placeholder="{{ __('messages.ingredient_name') }}" aria-label="{{ __('messages.ingredient_name') }}" required class="flex-1 rounded-xl border-lime-200 shadow-sm focus:border-lime-500 focus:ring-lime-500 py-3 px-4 transition duration-150">
+                <input type="text" name="amounts[]" placeholder="{{ __('messages.amount_placeholder') }}" aria-label="{{ __('messages.amount_placeholder') }}" required class="w-1/3 rounded-xl border-lime-200 shadow-sm focus:border-lime-500 focus:ring-lime-500 py-3 px-4 transition duration-150">
                 <button type="button" class="text-red-500 px-3 font-black remove-ingredient hover:text-red-700 transition duration-150">&times;</button>
             `;
             container.appendChild(row);

@@ -29,13 +29,13 @@
                                     <img class="h-16 w-16 object-cover rounded-full shadow" src="{{ asset('storage/' . auth()->user()->avatar) }}" alt="Current avatar">
                                 @else
                                     <div class="h-16 w-16 bg-orange-100 text-orange-500 flex items-center justify-center rounded-full shadow text-xl font-bold">
-                                        {{ substr(auth()->user()->name, 0, 1) }}
+                                        {{ mb_substr(auth()->user()->name, 0, 1) }}
                                     </div>
                                 @endif
                             </div>
-                            <label class="block">
+                            <label for="avatar" class="block">
                                 <span class="sr-only">Choose profile photo</span>
-                                <input type="file" name="avatar" accept="image/*"
+                                <input id="avatar" type="file" name="avatar" accept="image/*"
                                        class="block w-full text-sm text-gray-500
                                     file:mr-4 file:py-2 file:px-4
                                     file:rounded-full file:border-0

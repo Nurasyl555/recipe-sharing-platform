@@ -38,5 +38,9 @@
   "Profile Information": "Profile Information",
   "Update your account's profile information, email address, and avatar.": "Update your account's profile information, email address, and avatar.",
   "Save": "Save",
-  "Saved.": "Saved."
+  "Saved.": "Saved.",
+  "Favorites": "Favorites",
+  "Your favorite recipes collected here.": "Your favorite recipes collected here.",
+  "No favorite recipes yet": "No favorite recipes yet",
+  "Explore recipes and add them to your favorites.": "Explore recipes and add them to your favorites."
 }

@@ -22,9 +22,37 @@
             </span>
         </div>
 
-        <div class="absolute top-5 right-5">
-            <button class="p-2.5 bg-white/80 backdrop-blur-md rounded-full text-gray-400 hover:text-red-500 hover:bg-white transition-all duration-300 shadow-sm">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <div class="absolute top-5 right-5"
+             x-data="{
+                isFavorite: {{ auth()->check() && auth()->user()->favorites()->where('recipe_id', $recipe->id)->exists() ? 'true' : 'false' }},
+                loading: false,
+                async toggleFavorite() {
+                    @guest
+                        window.location.href = '{{ route('login') }}';
+                        return;
+                    @endguest
+                    if (this.loading) return;
+                    this.loading = true;
+                    try {
+                        if (this.isFavorite) {
+                            await axios.delete('{{ route('favorites.destroy', $recipe->id) }}');
+                            this.isFavorite = false;
+                        } else {
+                            await axios.post('{{ route('favorites.store', $recipe->id) }}');
+                            this.isFavorite = true;
+                        }
+                    } catch (error) {
+                        console.error(error);
+                    } finally {
+                        this.loading = false;
+                    }
+                }
+             }">
+            <button @click="toggleFavorite()"
+                    :disabled="loading"
+                    class="p-2.5 bg-white/80 backdrop-blur-md rounded-full transition-all duration-300 shadow-sm"
+                    :class="isFavorite ? 'text-red-500 bg-white' : 'text-gray-400 hover:text-red-500 hover:bg-white'">
+                <svg class="w-5 h-5" :fill="isFavorite ? 'currentColor' : 'none'" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
                 </svg>
             </button>
@@ -65,7 +93,7 @@
                         <img src="{{ asset('storage/' . $recipe->user->avatar) }}" alt="{{ $recipe->user->name }}" class="w-9 h-9 rounded-full object-cover ring-2 ring-lime-50">
                     @else
                         <div class="w-9 h-9 rounded-full bg-gradient-to-tr from-gray-100 to-gray-200 flex items-center justify-center text-sm font-bold text-gray-500 ring-2 ring-lime-50">
-                            {{ substr($recipe->user->name, 0, 1) }}
+                            {{ mb_substr($recipe->user->name, 0, 1) }}
                         </div>
                     @endif
                 </div>

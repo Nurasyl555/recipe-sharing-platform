@@ -16,8 +16,8 @@ class RatingFactory extends Factory
         return [
             'user_id' => User::factory(),
             'recipe_id' => Recipe::factory(),
-            'rating' => fake()->numberBetween(1, 5),
-            'comment' => fake()->optional()->sentence(),
+            'score' => fake()->numberBetween(1, 5),
+            'comment' => fake()->sentence(),
         ];
     }
 }
