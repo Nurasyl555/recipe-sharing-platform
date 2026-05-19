@@ -18,9 +18,7 @@ use OpenApi\Attributes as OA;
     url: "http://localhost:8000/api",
     description: "Development Server"
 )]
-#[OA\Server(
-    url: "http://127.0.0.1:8000"
-)]
+
 #[OA\SecurityScheme(
     securityScheme: "bearerAuth",
     type: "http",
